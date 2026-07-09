@@ -210,9 +210,9 @@
           const m = this.data.metrics
           if (!m) return []
           return [
-            { label: 'Balance', value: m.balanceEth + ' ETH', color: 'text-[#d4a017]' },
+            { label: 'Balance', value: m.balanceEth + ' ' + (m.tokenSymbol || 'OKB'), color: 'text-[#d4a017]' },
             { label: 'Transactions', value: m.totalTx.toLocaleString(), color: 'text-[#2563eb]' },
-            { label: 'Gas Burned', value: m.gasBurnedEth + ' ETH', color: 'text-[#db2777]' },
+            { label: 'Gas Burned', value: m.gasBurnedEth + ' ' + (m.tokenSymbol || 'OKB'), color: 'text-[#db2777]' },
             { label: 'Swaps', value: m.swapCount, color: 'text-[#16a34a]' },
           ]
         },

@@ -1,5 +1,16 @@
 import type { WalletMetrics, WalletPersonality } from "./types.js";
 
+// Personality fields come from an LLM and are interpolated into HTML that we
+// write to disk and serve, so they must be escaped to avoid stored XSS.
+function esc(input: string): string {
+  return String(input)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function buildMarkdown(
   address: string,
   metrics: WalletMetrics,
@@ -20,8 +31,8 @@ export function buildMarkdown(
   lines.push(``);
   lines.push(`**Stats**`);
   lines.push(`- Total Transactions: **${metrics.totalTx}**`);
-  lines.push(`- Balance: **${metrics.balanceEth} ETH** ($${metrics.balanceUsd})`);
-  lines.push(`- Gas Burned: **${metrics.gasBurnedEth} ETH** ($${metrics.gasBurnedUsd})`);
+  lines.push(`- Balance: **${metrics.balanceEth} ${metrics.tokenSymbol}** ($${metrics.balanceUsd})`);
+  lines.push(`- Gas Burned: **${metrics.gasBurnedEth} ${metrics.tokenSymbol}** ($${metrics.gasBurnedUsd})`);
   lines.push(`- Swaps: **${metrics.swapCount}**`);
   lines.push(`- Unique Protocols: **${metrics.uniqueProtocols}**`);
   lines.push(``);
@@ -125,8 +136,8 @@ body{font-family:'Inter','Courier New',monospace;background:#f0f0f0;color:#1a1a1
 <div class="slide">
 <div class="page">
 <div class="label">Your Wallet Archetype</div>
-<div class="at">${personality.title}</div>
-<div class="sarc">${personality.roast}</div>
+<div class="at">${esc(personality.title)}</div>
+<div class="sarc">${esc(personality.roast)}</div>
 </div>
 <div class="foot">TxWrap</div>
 </div>
@@ -135,9 +146,9 @@ body{font-family:'Inter','Courier New',monospace;background:#f0f0f0;color:#1a1a1
 <div class="page">
 <div class="label">Overview</div>
 <div class="grid">
-<div class="box"><div class="l">Balance</div><div class="v cgold">${metrics.balanceEth} ETH</div></div>
+<div class="box"><div class="l">Balance</div><div class="v cgold">${metrics.balanceEth} ${esc(metrics.tokenSymbol)}</div></div>
 <div class="box"><div class="l">Transactions</div><div class="v cblue">${metrics.totalTx}</div></div>
-<div class="box"><div class="l">Gas Burned</div><div class="v cpink">${metrics.gasBurnedEth} ETH</div></div>
+<div class="box"><div class="l">Gas Burned</div><div class="v cpink">${metrics.gasBurnedEth} ${esc(metrics.tokenSymbol)}</div></div>
 <div class="box"><div class="l">Swaps</div><div class="v cgreen">${metrics.swapCount}</div></div>
 </div>
 </div>
@@ -160,7 +171,7 @@ body{font-family:'Inter','Courier New',monospace;background:#f0f0f0;color:#1a1a1
 <div class="slide">
 <div class="page">
 <div class="label">Fun Facts</div>
-${personality.funFacts.map(f => `<div class="fact">${f}</div>`).join("")}
+${personality.funFacts.map(f => `<div class="fact">${esc(f)}</div>`).join("")}
 </div>
 <div class="foot">TxWrap</div>
 </div>
@@ -180,7 +191,7 @@ ${personality.funFacts.map(f => `<div class="fact">${f}</div>`).join("")}
 <div class="slide">
 <div class="page verdict">
 <p style="font-size:48px">⚡</p>
-<div class="vq">"${personality.verdict}"</div>
+<div class="vq">"${esc(personality.verdict)}"</div>
 <div class="vs">— TxWrap</div>
 </div>
 <div class="foot">TxWrap</div>
@@ -189,7 +200,7 @@ ${personality.funFacts.map(f => `<div class="fact">${f}</div>`).join("")}
 <div class="slide">
 <div class="page">
 <div class="label">In Summary</div>
-<p style="font-size:24px;font-weight:900">${metrics.sarcasticTitle}</p>
+<p style="font-size:24px;font-weight:900">${esc(metrics.sarcasticTitle)}</p>
 <div class="sb">
 <div class="sbi"><div class="l">DeFi</div><div class="v" style="color:#2563eb">${metrics.defiScore}</div></div>
 <div class="sbi"><div class="l">Airdrop</div><div class="v" style="color:#9333ea">${metrics.airdropScore}</div></div>

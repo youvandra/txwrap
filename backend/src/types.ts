@@ -14,6 +14,7 @@ export interface OkLinkTransaction {
 
 export interface WalletMetrics {
   totalTx: number;
+  tokenSymbol: string;
   balanceEth: string;
   balanceUsd: string;
   gasBurnedEth: string;

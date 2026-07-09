@@ -32,7 +32,7 @@ function request(method: string, path: string): Promise<string> {
       port: 443,
       path: url.pathname + url.search,
       method,
-      rejectUnauthorized: config.nodeEnv === "production",
+      rejectUnauthorized: true,
       headers: {
         "OK-ACCESS-KEY": config.xlayerApiKey,
         "OK-ACCESS-SIGN": signature,

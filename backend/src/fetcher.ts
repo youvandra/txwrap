@@ -7,6 +7,7 @@ import {
 export interface AddressProfile {
   address: string;
   balance: string;
+  balanceSymbol: string;
   transactionCount: number;
   firstTransactionTime: string;
   lastTransactionTime: string;
@@ -17,6 +18,7 @@ export async function fetchAddressProfile(address: string): Promise<AddressProfi
   return {
     address: info.address,
     balance: info.balance,
+    balanceSymbol: info.balanceSymbol || "OKB",
     transactionCount: parseInt(info.transactionCount || "0", 10),
     firstTransactionTime: info.firstTransactionTime,
     lastTransactionTime: info.lastTransactionTime,

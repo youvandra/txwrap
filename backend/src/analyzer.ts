@@ -5,6 +5,11 @@ import type {
 } from "./types.js";
 import type { AddressProfile } from "./fetcher.js";
 
+// X Layer's native gas token is OKB. The X Layer Data API returns balance,
+// amount, and txFee as human-readable decimal strings (already in token
+// units), NOT wei — so we parse them with Number(), never BigInt().
+const TOKEN_USD_PRICE = 50; // approximate OKB/USD
+
 // Known DEX method signatures on EVM (X Layer)
 const SWAP_METHODS = new Set([
   "0x38ed1739", // swapExactTokensForTokens
@@ -97,17 +102,13 @@ function groupByAddress(txs: OkLinkTransaction[], address: string) {
 }
 
 function computeGasMetrics(txs: OkLinkTransaction[]) {
-  let totalGasWei = 0n;
+  let totalGasToken = 0;
   for (const tx of txs) {
-    try {
-      const fee = BigInt(tx.txFee || "0");
-      totalGasWei += fee;
-    } catch {
-      // skip malformed fees
-    }
+    const fee = Number(tx.txFee || "0");
+    if (Number.isFinite(fee)) totalGasToken += fee;
   }
-  const totalGasEth = Number(totalGasWei) / 1e18;
-  const totalGasUsd = totalGasEth * 3500; // approximate ETH price
+  const totalGasEth = totalGasToken;
+  const totalGasUsd = totalGasEth * TOKEN_USD_PRICE;
   return { totalGasEth, totalGasUsd };
 }
 
@@ -118,7 +119,7 @@ function computeAirdropScore(
 ): number {
   const protocolScore = Math.min(uniqueProtocols * 20, 40);
   const now = Date.now();
-  const walletAgeDays = (now - firstTxTimestamp) / (1000 * 60 * 60 * 24);
+  const walletAgeDays = Math.max(0, (now - firstTxTimestamp) / (1000 * 60 * 60 * 24));
   const ageScore = Math.min(walletAgeDays * 2, 30);
   const activityScore = Math.min(Math.log10(totalTxs + 1) * 15, 30);
   return Math.round(protocolScore + ageScore + activityScore);
@@ -274,8 +275,8 @@ export async function analyzeWallet(
   transactions: OkLinkTransaction[]
 ): Promise<WalletMetrics> {
   const address = profile.address;
-  const balanceEth = Number(profile.balance || "0") / 1e18;
-  const balanceUsd = balanceEth * 3500;
+  const balanceEth = Number(profile.balance || "0");
+  const balanceUsd = balanceEth * TOKEN_USD_PRICE;
 
   const {
     recipientCounts,
@@ -290,14 +291,11 @@ export async function analyzeWallet(
 
   const { totalGasEth, totalGasUsd } = computeGasMetrics(transactions);
   const uniqueProtocols = contractInteractions.size;
-  const totalValueWei = transactions.reduce((sum, tx) => {
-    try {
-      return sum + BigInt(tx.value || "0");
-    } catch {
-      return sum;
-    }
-  }, 0n);
-  const avgTxValue = totalTxs > 0 ? Number(totalValueWei) / 1e18 / totalTxs : 0;
+  const totalValue = transactions.reduce((sum, tx) => {
+    const v = Number(tx.value || "0");
+    return Number.isFinite(v) ? sum + v : sum;
+  }, 0);
+  const avgTxValue = totalTxs > 0 ? totalValue / totalTxs : 0;
 
   const archetype = classifyArchetype(
     swapCount,
@@ -312,13 +310,18 @@ export async function analyzeWallet(
 
   return {
     totalTx: profile.transactionCount,
+    tokenSymbol: profile.balanceSymbol || "OKB",
     balanceEth: balanceEth.toFixed(4),
     balanceUsd: balanceUsd.toFixed(2),
     gasBurnedEth: totalGasEth.toFixed(4),
     gasBurnedUsd: totalGasUsd.toFixed(2),
     swapCount,
     defiScore: Math.round(Math.min(uniqueProtocols * 10, 100)),
-    airdropScore: computeAirdropScore(uniqueProtocols, Date.now() - 86400000 * 30, totalTxs),
+    airdropScore: computeAirdropScore(
+      uniqueProtocols,
+      Number(profile.firstTransactionTime) || Date.now(),
+      totalTxs
+    ),
     degenScore: computeDegenScore(swapCount, totalTxs, nightCount, totalGasEth, balanceEth),
     diamondHandsDays: computeDiamondHands(transactions, address),
     whaleometer: Math.round(Math.min((balanceEth / 100) * 100, 100)),
