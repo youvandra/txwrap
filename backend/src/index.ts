@@ -17,8 +17,16 @@ const app = express();
 
 app.use(express.json());
 
+// Serve generated slides
 app.use("/slides", express.static(SLIDES_DIR));
+
+// Serve frontend static files
 app.use(express.static(FRONTEND_DIR));
+
+// Handle /wrap/:address route — serve frontend, JS picks up the address
+app.get("/wrap/:address", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
+});
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "txwrap" });
@@ -43,6 +51,7 @@ app.post("/api/txwrap", async (req, res) => {
     const personality = await generatePersonality(metrics);
     const markdown = buildMarkdown(address, metrics, personality);
 
+    // Generate and save slideshow HTML
     const html = buildSlideshowHtml(address, metrics, personality);
     if (!fs.existsSync(SLIDES_DIR)) {
       fs.mkdirSync(SLIDES_DIR, { recursive: true });
@@ -51,7 +60,7 @@ app.post("/api/txwrap", async (req, res) => {
     fs.writeFileSync(path.join(SLIDES_DIR, slideFile), html, "utf-8");
 
     const baseUrl = `${req.protocol}://${req.get("host") || `localhost:${config.port}`}`;
-    const slideshowUrl = `${baseUrl}/slides/${slideFile}`;
+    const slideshowUrl = `${baseUrl}/wrap/${address}`;
 
     const response: TxWrapResponse = {
       success: true,

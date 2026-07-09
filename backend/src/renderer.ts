@@ -42,64 +42,53 @@ export function buildSlideshowHtml(
   metrics: WalletMetrics,
   personality: WalletPersonality
 ): string {
-  const hourLabel = metrics.peakHour >= 12 ? `${metrics.peakHour}:00 PM` : `${metrics.peakHour}:00 AM`;
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TxWrap — ${address.slice(0, 10)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: 'Inter', sans-serif;
-  background: #0a0a0f;
-  color: #fff;
+  font-family: 'Inter', 'Courier New', monospace;
+  background: #f0f0f0;
+  color: #1a1a1a;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  padding: 32px;
 }
 .slide {
   width: 600px;
-  min-height: 400px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  border-radius: 24px;
-  padding: 48px;
+  min-height: 480px;
+  background: #fff;
+  border: 4px solid #1a1a1a;
+  box-shadow: 10px 10px 0px #1a1a1a;
+  padding: 48px 40px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
-.slide::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 50%, rgba(99,102,241,0.15) 0%, transparent 50%);
-  pointer-events: none;
-}
-h1 { font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
-.subtitle { font-size: 18px; color: #94a3b8; margin-bottom: 32px; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.stat { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
-.stat .label { font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 4px; }
-.stat .value { font-size: 28px; font-weight: 800; }
-.stat .value.gold { color: #fbbf24; }
-.stat .value.pink { color: #ec4899; }
-.stat .value.blue { color: #6366f1; }
-.stat .value.green { color: #22c55e; }
-.personality { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08); }
-.personality h2 { font-size: 20px; margin-bottom: 8px; }
-.personality p { color: #cbd5e1; font-size: 14px; line-height: 1.6; }
+h1 { font-size: 48px; font-weight: 900; color: #1a1a1a; text-transform: uppercase; border: 4px solid #1a1a1a; padding: 8px 20px; display: inline-block; box-shadow: 6px 6px 0px #1a1a1a; margin-bottom: 16px; letter-spacing: -2px; }
+.subtitle { font-size: 16px; color: #555; font-family: 'Courier New', monospace; margin-bottom: 32px; }
+.label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; font-weight: 700; margin-bottom: 8px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.stat { background: #f8f8f8; border: 3px solid #1a1a1a; padding: 20px; box-shadow: 4px 4px 0px #1a1a1a; }
+.stat .label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 8px; font-weight: 700; }
+.stat .value { font-size: 28px; font-weight: 900; }
+.stat .value.gold { color: #d4a017; }
+.stat .value.pink { color: #db2777; }
+.stat .value.blue { color: #2563eb; }
+.stat .value.green { color: #16a34a; }
+.personality { background: #f8f8f8; border: 3px solid #1a1a1a; padding: 20px; margin-bottom: 24px; box-shadow: 4px 4px 0px #1a1a1a; }
+.personality h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; color: #1a1a1a; }
+.personality p { color: #555; font-size: 14px; line-height: 1.6; }
 .scores { display: flex; gap: 12px; margin-bottom: 24px; }
-.score-badge { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 16px; text-align: center; flex: 1; border: 1px solid rgba(255,255,255,0.08); }
-.score-badge .label { font-size: 11px; text-transform: uppercase; color: #64748b; letter-spacing: 1px; }
-.score-badge .value { font-size: 22px; font-weight: 800; margin-top: 4px; }
-.footer { font-size: 12px; color: #475569; text-align: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+.score-badge { background: #f8f8f8; border: 3px solid #1a1a1a; padding: 12px 16px; text-align: center; flex: 1; box-shadow: 3px 3px 0px #1a1a1a; }
+.score-badge .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700; }
+.score-badge .value { font-size: 22px; font-weight: 900; margin-top: 4px; }
+.footer { font-size: 10px; color: #ccc; text-align: center; padding-top: 16px; border-top: 3px solid #1a1a1a; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -134,19 +123,19 @@ h1 { font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #636
   <div class="scores">
     <div class="score-badge">
       <div class="label">DeFi</div>
-      <div class="value" style="color:#6366f1">${metrics.defiScore}</div>
+      <div class="value" style="color:#2563eb">${metrics.defiScore}</div>
     </div>
     <div class="score-badge">
       <div class="label">Airdrop</div>
-      <div class="value" style="color:#a855f7">${metrics.airdropScore}</div>
+      <div class="value" style="color:#9333ea">${metrics.airdropScore}</div>
     </div>
     <div class="score-badge">
       <div class="label">Degen</div>
-      <div class="value" style="color:#ec4899">${metrics.degenScore}</div>
+      <div class="value" style="color:#db2777">${metrics.degenScore}</div>
     </div>
     <div class="score-badge">
       <div class="label">Whale</div>
-      <div class="value" style="color:#fbbf24">${metrics.whaleometer}</div>
+      <div class="value" style="color:#d4a017">${metrics.whaleometer}</div>
     </div>
   </div>
 
