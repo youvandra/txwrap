@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TxWrap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Loading -->
+    <div class="container" id="loading">
+      <div class="spinner"></div>
+      <p>Wrapping your wallet...</p>
+    </div>
+
+    <!-- Connect -->
+    <div class="container" id="connect">
+      <h1 class="title">TxWrap</h1>
+      <p class="subtitle">Your Wallet, Wrapped.</p>
+      <div class="input-group">
+        <input type="text" id="addressInput" placeholder="0x..." class="input" spellcheck="false">
+        <button id="wrapBtn" class="btn">Wrap</button>
+      </div>
+      <p class="hint">Enter any X Layer wallet address</p>
+    </div>
+
+    <!-- Slideshow (detached rendering) -->
+    <div id="slidesWrapper" style="display:none">
+      <div id="slidesContainer">
+        <!-- Slide 1: Cover -->
+        <div class="slide active" data-slide="0">
+          <div class="slide-cover">
+            <div class="logo-icon">TxWrap</div>
+            <h2 class="cover-address" id="coverAddress"></h2>
+            <p class="cover-sub">Your <span id="coverYear"></span> Wallet Wrapped</p>
+          </div>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+
+        <!-- Slide 2: Archetype -->
+        <div class="slide" data-slide="1">
+          <div class="slide-label">Your Wallet Archetype</div>
+          <h2 class="archetype-title" id="archetypeTitle"></h2>
+          <p class="archetype-roast" id="archetypeRoast"></p>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+
+        <!-- Slide 3: Stats Grid -->
+        <div class="slide" data-slide="2">
+          <div class="slide-label">Overview</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Balance</div>
+              <div class="stat-value gold" id="statBalance"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Transactions</div>
+              <div class="stat-value blue" id="statTx"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Gas Burned</div>
+              <div class="stat-value pink" id="statGas"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Swaps</div>
+              <div class="stat-value green" id="statSwaps"></div>
+            </div>
+          </div>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+
+        <!-- Slide 4: Scores -->
+        <div class="slide" data-slide="3">
+          <div class="slide-label">Scores</div>
+          <div class="scores-list">
+            <div class="score-row">
+              <span>DeFi Score</span>
+              <div class="bar-bg"><div class="bar-fill defi" id="barDefi"></div></div>
+              <span class="score-val" id="scoreDefi"></span>
+            </div>
+            <div class="score-row">
+              <span>Airdrop Score</span>
+              <div class="bar-bg"><div class="bar-fill airdrop" id="barAirdrop"></div></div>
+              <span class="score-val" id="scoreAirdrop"></span>
+            </div>
+            <div class="score-row">
+              <span>Degen Score</span>
+              <div class="bar-bg"><div class="bar-fill degen" id="barDegen"></div></div>
+              <span class="score-val" id="scoreDegen"></span>
+            </div>
+            <div class="score-row">
+              <span>Whaleometer</span>
+              <div class="bar-bg"><div class="bar-fill whale" id="barWhale"></div></div>
+              <span class="score-val" id="scoreWhale"></span>
+            </div>
+          </div>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+
+        <!-- Slide 5: Fun Facts -->
+        <div class="slide" data-slide="4">
+          <div class="slide-label">Fun Facts</div>
+          <ul class="fun-facts" id="funFacts"></ul>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+
+        <!-- Slide 6: Verdict -->
+        <div class="slide" data-slide="5">
+          <div class="verdict-icon">⚡</div>
+          <p class="verdict-text" id="verdictText"></p>
+          <div class="verdict-sig">— TxWrap</div>
+          <div class="slide-footer">TxWrap</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls" id="controls">
+        <div class="nav">
+          <button id="prevBtn" class="nav-btn">←</button>
+          <span id="slideCounter">1 / 6</span>
+          <button id="nextBtn" class="nav-btn">→</button>
+        </div>
+        <div class="actions">
+          <button id="saveBtn" class="action-btn">Save as Image</button>
+          <button id="shareBtn" class="action-btn">Share on X</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
