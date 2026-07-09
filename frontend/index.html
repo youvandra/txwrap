@@ -104,7 +104,7 @@
             <div x-show="slide===0" class="reveal" :class="slide===0&&'run'">
               <div class="flex flex-col items-center text-center gap-5">
                 <div class="badge pop text-xs">Your <span x-text="year"></span> Wallet Wrapped</div>
-                <h2 class="display pop" style="font-size:clamp(3rem,13vw,5.5rem)">YOUR YEAR<br><span :style="`-webkit-text-stroke:2px ${themes[slide].ink}`" style="color:transparent">ONCHAIN</span></h2>
+                <h2 class="display pop" style="font-size:clamp(3rem,13vw,5.5rem)">YOUR YEAR<br><span class="hollow" :style="`-webkit-text-stroke:2px ${themes[slide].ink}`" style="color:transparent">ONCHAIN</span></h2>
                 <div class="card pop mono px-4 py-2 text-sm break-all" x-text="shortAddr(data.address)"></div>
                 <p class="pop mono text-xs uppercase tracking-widest font-bold opacity-70">X Layer · powered by TxWrap</p>
               </div>
@@ -351,7 +351,24 @@
           const el = document.getElementById('card');
           if (!el) return;
           try {
-            const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false });
+            const canvas = await html2canvas(el, {
+              scale: 2, useCORS: true, logging: false,
+              onclone: (doc) => {
+                // html2canvas re-triggers CSS animations in the clone, capturing
+                // reveal elements at their opacity:0 start frame. Freeze them.
+                doc.querySelectorAll('.pop').forEach(n => {
+                  n.style.opacity = '1';
+                  n.style.transform = 'none';
+                  n.style.animation = 'none';
+                });
+                doc.querySelectorAll('.marquee > span').forEach(n => { n.style.animation = 'none'; });
+                // -webkit-text-stroke is unsupported by html2canvas; render solid.
+                doc.querySelectorAll('.hollow').forEach(n => {
+                  n.style.color = 'currentColor';
+                  n.style.webkitTextStroke = '0';
+                });
+              },
+            });
             const link = document.createElement('a');
             link.download = 'txwrap-' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png');
