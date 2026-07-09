@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TxWrap — 0x69c236e0</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0a0a0f;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.slide {
+  width: 600px;
+  min-height: 400px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 24px;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.slide::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(99,102,241,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+h1 { font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.subtitle { font-size: 18px; color: #94a3b8; margin-bottom: 32px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.stat { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
+.stat .label { font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 4px; }
+.stat .value { font-size: 28px; font-weight: 800; }
+.stat .value.gold { color: #fbbf24; }
+.stat .value.pink { color: #ec4899; }
+.stat .value.blue { color: #6366f1; }
+.stat .value.green { color: #22c55e; }
+.personality { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08); }
+.personality h2 { font-size: 20px; margin-bottom: 8px; }
+.personality p { color: #cbd5e1; font-size: 14px; line-height: 1.6; }
+.scores { display: flex; gap: 12px; margin-bottom: 24px; }
+.score-badge { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 16px; text-align: center; flex: 1; border: 1px solid rgba(255,255,255,0.08); }
+.score-badge .label { font-size: 11px; text-transform: uppercase; color: #64748b; letter-spacing: 1px; }
+.score-badge .value { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.footer { font-size: 12px; color: #475569; text-align: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+</style>
+</head>
+<body>
+<div class="slide">
+  <h1>TxWrap</h1>
+  <div class="subtitle">0x69c236e0...b869df</div>
+
+  <div class="personality">
+    <h2>The Micro Duster</h2>
+    <p>You've made 3552345 transactions and burned 0.0000 ETH on gas. That's certainly a choice.</p>
+  </div>
+
+  <div class="grid">
+    <div class="stat">
+      <div class="label">Balance</div>
+      <div class="value gold">0.0000 ETH</div>
+    </div>
+    <div class="stat">
+      <div class="label">Transactions</div>
+      <div class="value blue">3552345</div>
+    </div>
+    <div class="stat">
+      <div class="label">Gas Burned</div>
+      <div class="value pink">0.0000 ETH</div>
+    </div>
+    <div class="stat">
+      <div class="label">Swaps</div>
+      <div class="value green">3</div>
+    </div>
+  </div>
+
+  <div class="scores">
+    <div class="score-badge">
+      <div class="label">DeFi</div>
+      <div class="value" style="color:#6366f1">10</div>
+    </div>
+    <div class="score-badge">
+      <div class="label">Airdrop</div>
+      <div class="value" style="color:#a855f7">80</div>
+    </div>
+    <div class="score-badge">
+      <div class="label">Degen</div>
+      <div class="value" style="color:#ec4899">1</div>
+    </div>
+    <div class="score-badge">
+      <div class="label">Whale</div>
+      <div class="value" style="color:#fbbf24">0</div>
+    </div>
+  </div>
+
+  <div class="footer">TxWrap 2026 — X Layer</div>
+</div>
+</body>
+</html>

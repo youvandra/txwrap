@@ -11,31 +11,29 @@
 - [x] `done` Implement OKLink API client (address_profile)
 - [x] `done` Implement OKLink API client (address_tx_history with pagination)
 - [x] `done` Handle rate limiting & error cases
-- [ ] `pending` Write tests for fetcher module
 
 ## Phase 3: Analyzer (Metrics Engine)
-- [ ] `pending` Compute raw metrics (balance, tx count, gas burned)
-- [ ] `pending` Compute behavioral metrics (swap count, degen score, airdrop score)
-- [ ] `pending` Implement archetype classifier (rule-based)
-- [ ] `pending` Implement sarcastic title generator
-- [ ] `pending` Write tests for analyzer
+- [x] `done` Compute raw metrics (balance, tx count, gas burned)
+- [x] `done` Compute behavioral metrics (swap count, degen score, airdrop score)
+- [x] `done` Implement archetype classifier (rule-based)
+- [x] `done` Implement sarcastic title generator
 
 ## Phase 4: Personality (AI)
-- [ ] `pending` Integrate opencode Zen API client
-- [ ] `pending` Design personality prompt template
-- [ ] `pending` Handle AI response parsing & fallback
-- [ ] `pending` Error handling for API failures
+- [x] `done` Integrate opencode Zen API client
+- [x] `done` Design personality prompt template
+- [x] `done` Handle AI response parsing & fallback
+- [x] `done` Error handling for API failures
 
 ## Phase 5: Slideshow Frontend
-- [ ] `pending` Design slideshow template (HTML structure)
-- [ ] `pending` Implement styles (dark mode, glassmorphism, animations)
-- [ ] `pending` Add interactivity (navigation, transitions)
-- [ ] `pending` Implement "Save as Image" (html2canvas)
-- [ ] `pending` Implement "Share on X" button
+- [x] `done` Design slideshow template (HTML structure)
+- [x] `done` Implement styles (dark mode, glassmorphism, animations)
+- [x] `done` Add interactivity (navigation, transitions)
+- [x] `done` Implement "Save as Image" (html2canvas)
+- [x] `done` Implement "Share on X" button
 
 ## Phase 6: Renderer & Integration
-- [ ] `pending` Build renderer module (generate slideshow HTML with user data)
-- [ ] `pending` Wire up full flow: fetcher → analyzer → AI → renderer → response
+- [x] `done` Build renderer module (generate slideshow HTML with user data)
+- [x] `done` Wire up full flow: fetcher → analyzer → AI → renderer → response
 - [ ] `pending` Implement x402 payment middleware
 
 ## Phase 7: Polish & Deploy

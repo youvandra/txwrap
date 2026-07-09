@@ -1,19 +1,3 @@
-// === Raw data from OKLink API ===
-
-export interface OkLinkAddressProfile {
-  address: string;
-  balance: string;
-  transactionCount: number;
-  tokenHoldings: OkLinkTokenHolding[];
-}
-
-export interface OkLinkTokenHolding {
-  tokenAddress: string;
-  symbol: string;
-  balance: string;
-  usdValue?: string;
-}
-
 export interface OkLinkTransaction {
   txId: string;
   from: string;
@@ -27,15 +11,6 @@ export interface OkLinkTransaction {
   methodId?: string;
   status: "success" | "fail";
 }
-
-export interface OkLinkTxHistory {
-  transactions: OkLinkTransaction[];
-  totalCount: number;
-  page: number;
-  limit: number;
-}
-
-// === Computed metrics ===
 
 export interface WalletMetrics {
   totalTx: number;
@@ -69,16 +44,12 @@ export type WalletArchetype =
   | "The Bot"
   | "The Based Chad";
 
-// === AI Personality ===
-
 export interface WalletPersonality {
   title: string;
   roast: string;
   funFacts: string[];
   verdict: string;
 }
-
-// === API Response ===
 
 export interface TxWrapResponse {
   success: boolean;
@@ -91,52 +62,7 @@ export interface TxWrapResponse {
   error?: string;
 }
 
-// === Request ===
-
 export interface TxWrapRequest {
   address: string;
   chainId?: string;
-}
-
-// === OKLink API raw response shapes ===
-
-export interface OkLinkApiResponse<T> {
-  code: string;
-  msg: string;
-  data: T[];
-}
-
-export interface OkLinkAddressData {
-  address: string;
-  balance: string;
-  transactionCount: number;
-  tokenBalances?: OkLinkTokenBalance[];
-}
-
-export interface OkLinkTokenBalance {
-  tokenContractAddress: string;
-  tokenSymbol: string;
-  balance: string;
-  usdValue: string;
-}
-
-export interface OkLinkTxData {
-  txId: string;
-  from: string;
-  to: string;
-  value: string;
-  gasUsed: string;
-  gasPrice: string;
-  txFee: string;
-  blockHeight: number;
-  transactionTime: number;
-  methodId?: string;
-  status: string;
-}
-
-export interface OkLinkTxHistoryData {
-  transactionList: OkLinkTxData[];
-  totalCount: number;
-  page: number;
-  limit: number;
 }

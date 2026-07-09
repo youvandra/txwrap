@@ -1,10 +1,9 @@
 import type {
-  OkLinkAddressData,
   OkLinkTransaction,
-  OkLinkTokenBalance,
   WalletMetrics,
   WalletArchetype,
 } from "./types.js";
+import type { AddressProfile } from "./fetcher.js";
 
 // Known DEX method signatures on EVM (X Layer)
 const SWAP_METHODS = new Set([
@@ -271,7 +270,7 @@ function generateSarcasticTitle(
 }
 
 export async function analyzeWallet(
-  profile: OkLinkAddressData,
+  profile: AddressProfile,
   transactions: OkLinkTransaction[]
 ): Promise<WalletMetrics> {
   const address = profile.address;

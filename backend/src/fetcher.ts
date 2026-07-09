@@ -1,76 +1,60 @@
-import { config } from "./config.js";
-import type {
-  OkLinkApiResponse,
-  OkLinkAddressData,
-  OkLinkTxHistoryData,
-  OkLinkTransaction,
-} from "./types.js";
+import type { OkLinkTransaction } from "./types.js";
+import {
+  getAddressInfo,
+  getAddressTransactions,
+} from "./xlayer-client.js";
 
-const BASE_URL = "https://www.oklink.com/api/v5/explorer";
-const CHAIN = "XLAYER";
-
-async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      "OK-ACCESS-KEY": config.oklinkApiKey,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`OKLink API error: ${res.status} ${res.statusText}`);
-  }
-
-  const json = (await res.json()) as OkLinkApiResponse<T>;
-  if (json.code !== "0") {
-    throw new Error(`OKLink API error: ${json.code} ${json.msg}`);
-  }
-
-  return json.data[0];
+export interface AddressProfile {
+  address: string;
+  balance: string;
+  transactionCount: number;
+  firstTransactionTime: string;
+  lastTransactionTime: string;
 }
 
-export async function fetchAddressProfile(address: string): Promise<OkLinkAddressData> {
-  return apiGet<OkLinkAddressData>(
-    `/address/address-summary?chainShortName=${CHAIN}&address=${address}`
-  );
-}
-
-export async function fetchAddressTransactions(
-  address: string,
-  page = 1,
-  limit = 50
-): Promise<OkLinkTxHistoryData> {
-  return apiGet<OkLinkTxHistoryData>(
-    `/address/address-transaction-list?chainShortName=${CHAIN}&address=${address}&page=${page}&limit=${limit}`
-  );
+export async function fetchAddressProfile(address: string): Promise<AddressProfile> {
+  const info = await getAddressInfo(address);
+  return {
+    address: info.address,
+    balance: info.balance,
+    transactionCount: parseInt(info.transactionCount || "0", 10),
+    firstTransactionTime: info.firstTransactionTime,
+    lastTransactionTime: info.lastTransactionTime,
+  };
 }
 
 export async function fetchAllTransactions(
   address: string,
-  maxPages = 10
+  maxPages = 5
 ): Promise<OkLinkTransaction[]> {
   const allTxs: OkLinkTransaction[] = [];
-  let page = 1;
-  let hasMore = true;
+  const seen = new Set<string>();
 
-  while (hasMore && page <= maxPages) {
-    const data = await fetchAddressTransactions(address, page, 50);
-    const txs: OkLinkTransaction[] = data.transactionList.map((tx) => ({
-      txId: tx.txId,
-      from: tx.from,
-      to: tx.to,
-      value: tx.value,
-      gasUsed: tx.gasUsed,
-      gasPrice: tx.gasPrice,
-      txFee: tx.txFee,
-      blockHeight: tx.blockHeight,
-      timestamp: tx.transactionTime,
-      methodId: tx.methodId,
-      status: tx.status === "success" ? "success" : "fail",
-    }));
+  for (let page = 1; page <= maxPages; page++) {
+    const data = await getAddressTransactions(address, page, 50);
+    const list = data.transactionLists || [];
 
-    allTxs.push(...txs);
-    hasMore = data.page * data.limit < data.totalCount;
-    page++;
+    for (const tx of list) {
+      if (seen.has(tx.txId)) continue;
+      seen.add(tx.txId);
+
+      allTxs.push({
+        txId: tx.txId,
+        from: tx.from,
+        to: tx.to,
+        value: tx.amount || "0",
+        gasUsed: "0",
+        gasPrice: "0",
+        txFee: tx.txFee || "0",
+        blockHeight: parseInt(tx.height || "0", 10),
+        timestamp: parseInt(tx.transactionTime || "0", 10),
+        methodId: tx.methodId,
+        status: tx.state === "success" ? "success" : "fail",
+      });
+    }
+
+    const totalPages = parseInt(data.totalPage || "1", 10);
+    if (page >= totalPages) break;
   }
 
   return allTxs;
