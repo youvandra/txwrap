@@ -5,12 +5,12 @@
 - [x] `done` Initialize project structure (directories, package.json, tsconfig)
 - [x] `done` Setup Express server with basic health endpoint
 - [x] `done` Create TypeScript types for all data structures
-- [ ] `pending` Setup environment config (OKLink API key, opencode API key)
+- [x] `done` Setup environment config (OKLink API key, opencode API key)
 
 ## Phase 2: Fetcher
-- [ ] `pending` Implement OKLink API client (address_profile)
-- [ ] `pending` Implement OKLink API client (address_tx_history with pagination)
-- [ ] `pending` Handle rate limiting & error cases
+- [x] `done` Implement OKLink API client (address_profile)
+- [x] `done` Implement OKLink API client (address_tx_history with pagination)
+- [x] `done` Handle rate limiting & error cases
 - [ ] `pending` Write tests for fetcher module
 
 ## Phase 3: Analyzer (Metrics Engine)
