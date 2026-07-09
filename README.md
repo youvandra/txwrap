@@ -8,7 +8,7 @@ Input any X Layer wallet address → get a shareable slideshow with on-chain sta
 
 - **Backend**: Node.js + TypeScript + Express
 - **Data Source**: X Layer Data API (web3.okx.com) with HMAC-SHA256 auth
-- **AI**: opencode Zen API (wallet personality generation)
+- **AI**: Sumopod API (`deepseek-v4-flash`, wallet personality generation)
 - **Frontend**: Alpine.js + Tailwind CSS (CDN, no build step) — neo-brutalism design
 - **Payment**: x402 standard (OKX Payment SDK)
 
@@ -22,7 +22,7 @@ cd txwrap/backend
 export XLAYER_API_KEY=your_key
 export XLAYER_SECRET_KEY=your_secret
 export XLAYER_PASSPHRASE=your_passphrase
-export OPENGATE_API_KEY=your_opencode_key
+export SUMOPOD_API_KEY=your_sumopod_key
 
 npm install
 npm run dev
@@ -49,7 +49,7 @@ txwrap/
 │       ├── xlayer-client.ts  # X Layer Data API (OKX HMAC auth)
 │       ├── fetcher.ts        # Data fetching
 │       ├── analyzer.ts       # Metrics engine (archetype, scores)
-│       ├── personality.ts    # opencode Zen API integration
+│       ├── personality.ts    # Sumopod API integration
 │       └── renderer.ts       # HTML slideshow builder
 └── frontend/
     ├── index.html            # Alpine.js SPA + Tailwind CSS

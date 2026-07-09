@@ -1,26 +1,26 @@
 import { config } from "./config.js";
 import type { WalletMetrics, WalletPersonality } from "./types.js";
 
-interface ZenMessage {
+interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
-interface ZenRequest {
+interface ChatRequest {
   model: string;
-  messages: ZenMessage[];
+  messages: ChatMessage[];
   temperature?: number;
   max_tokens?: number;
 }
 
-interface ZenChoice {
+interface ChatChoice {
   message: {
     content: string;
   };
 }
 
-interface ZenResponse {
-  choices: ZenChoice[];
+interface ChatResponse {
+  choices: ChatChoice[];
 }
 
 const SYSTEM_PROMPT = `You are a sarcastic, hilarious on-chain wallet analyst.
@@ -79,13 +79,13 @@ function getFallbackPersonality(metrics: WalletMetrics): WalletPersonality {
 export async function generatePersonality(
   metrics: WalletMetrics
 ): Promise<WalletPersonality> {
-  if (!config.opencodeApiKey) {
+  if (!config.sumopodApiKey) {
     return getFallbackPersonality(metrics);
   }
 
   try {
-    const body: ZenRequest = {
-      model: "opencode/deepseek-v4-flash-free",
+    const body: ChatRequest = {
+      model: "deepseek-v4-flash",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: buildMetricsPrompt(metrics) },
@@ -94,24 +94,24 @@ export async function generatePersonality(
       max_tokens: 500,
     };
 
-    const res = await fetch(`${config.opencodeBaseUrl}/chat/completions`, {
+    const res = await fetch(`${config.sumopodBaseUrl}/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${config.opencodeApiKey}`,
+        Authorization: `Bearer ${config.sumopodApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      throw new Error(`Zen API error: ${res.status}`);
+      throw new Error(`Sumopod API error: ${res.status}`);
     }
 
-    const data = (await res.json()) as ZenResponse;
+    const data = (await res.json()) as ChatResponse;
     const content = data.choices[0]?.message?.content;
 
     if (!content) {
-      throw new Error("Empty response from Zen API");
+      throw new Error("Empty response from Sumopod API");
     }
 
     const parsed = JSON.parse(content) as WalletPersonality;
