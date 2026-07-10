@@ -64,19 +64,20 @@ made on data the agent can weigh — not a black box.
 
 ## Pricing (x402)
 
-MCP tool calls are metered with the [x402](https://x402.org) standard, paid in
-**USDT on X Layer**:
+MCP tool calls are metered with [x402](https://x402.org) **v2**, paid in
+**USDT0 on X Layer** (`eip155:196`), via OKX's official SDK
+(`@okxweb3/x402-express` + `OKXFacilitatorClient`).
 
 - **Freemium**: every IP gets `X402_FREE_DAILY` (default 20) free tool calls
-  per day — connecting, `initialize`, and `tools/list` are always free.
-- Past the quota the server answers **HTTP 402** with x402
-  `paymentRequirements`; the agent retries with an `X-PAYMENT` header.
-- Configure via env: `X402_MODE` (`off` | `demo` | `facilitator`),
-  `X402_PAY_TO`, `X402_PRICE_USD`, `X402_FREE_DAILY`, `X402_FACILITATOR_URL`.
-- `demo` mode validates the payment payload but does not settle on-chain (no
-  public x402 facilitator exists for X Layer yet); the `X-PAYMENT-RESPONSE`
-  header says so honestly. Point `X402_FACILITATOR_URL` at a facilitator to
-  enable real settlement.
+  per day. `initialize` and `tools/list` are always free, so any MCP client can
+  connect and discover the tools.
+- Past the quota the server answers **HTTP 402** with a `PAYMENT-REQUIRED`
+  header; the payer signs and replays, and the **OKX facilitator settles the
+  transfer on-chain** to `X402_PAY_TO` (`syncSettle`, so the result is final).
+- This server holds no private key and pays no gas — settlement never passes
+  through it. The facilitator reuses the `XLAYER_*` API credentials.
+- Configure via env: `X402_MODE` (`off` | `on`), `X402_PAY_TO`,
+  `X402_PRICE_USD`, `X402_FREE_DAILY`.
 
 ## Tech Stack
 
@@ -86,7 +87,7 @@ MCP tool calls are metered with the [x402](https://x402.org) standard, paid in
 - **AI**: Sumopod API (`deepseek-v4-flash`, optional roast layer)
 - **Frontend**: Alpine.js + Tailwind CSS (CDN, no build step) — neo-brutalism
 - **Share cards**: server-rendered SVG → PNG (`@resvg/resvg-js`)
-- **Payment**: x402 standard — freemium + HTTP 402, USDT on X Layer
+- **Payment**: x402 v2 via OKX Payment SDK — freemium + HTTP 402, USDT0 on X Layer
 
 ## Quick Start
 
