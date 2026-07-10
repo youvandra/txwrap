@@ -327,10 +327,12 @@ product optimizes for — agent decision-value and human virality — plus the
 reliability that both depend on.
 
 ### Agent intelligence
-- **Protocol & address labels** — seed [`labels.ts`](backend/src/labels.ts) with
-  verified X Layer DEX, bridge, and token contracts so `topFrenemy`, swap
-  detection, and the roast read real names instead of short hex. The mechanism
-  (registry + honest short-hex fallback) already ships; this fills it with data.
+- **Protocol & address labels** ✅ *shipped (tokens)* —
+  [`labels.ts`](backend/src/labels.ts) is now seeded with verified X Layer token
+  contracts (WOKB, USDT0, USDC, DAI, USDG, xETH/xSOL/xBTC…) from OKX's official
+  token list, so `topFrenemy` and `find_sybils` counterparties read real names
+  instead of short hex. DEX routers / bridges stay unlabeled until an equally
+  authoritative source confirms them (honest short-hex fallback holds).
 - **`find_sybils` tool** ✅ *shipped* — take 3–20 addresses and flag coordinated
   clusters ([`sybil.ts`](backend/src/sybil.ts)): shared counterparties (Jaccard),
   shared funding source, and correlated activity timing (cosine), grouped via

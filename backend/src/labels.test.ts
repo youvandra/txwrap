@@ -23,6 +23,14 @@ test("labelAddress shortens unknown addresses, never invents a name", () => {
   assert.equal(labelAddress(undefined), "Unknown");
 });
 
+test("labelAddress resolves seeded X Layer tokens, case-insensitively", () => {
+  // USDC from the official OKX token list.
+  assert.equal(labelAddress("0x74b7f16337b8972027f6196a17a631ac6de26d22"), "USDC");
+  assert.equal(labelAddress("0x74B7F16337b8972027F6196A17a631aC6dE26d22"), "USDC");
+  // USDT0 also cross-checks against x402.ts's settlement asset.
+  assert.equal(labelAddress("0x779ded0c9e1022225f8e0630b35a9b54be713736"), "USDT0");
+});
+
 test("isValidAddress accepts a 0x 40-hex address only", () => {
   assert.equal(isValidAddress("0x1234567890abcdef1234567890abcdef12345678"), true);
   assert.equal(isValidAddress("0x1234567890ABCDEF1234567890abcdef12345678"), true);
