@@ -154,6 +154,22 @@
             <div class="rv mono text-[11px] uppercase tracking-widest font-bold opacity-60" style="margin-top:14px">
               Agent&nbsp;ID&nbsp;#4938 · X&nbsp;Layer · 0.05 USDT0 per call
             </div>
+
+            <!-- live usage counters (real, from /api/stats) -->
+            <div x-show="statsReady" x-transition.duration.500ms class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full" style="max-width:720px;margin-top:44px">
+              <div class="card p-4 -rotate-1">
+                <p class="display" style="font-size:2rem;color:#2B4BFF" x-text="ds.agentCalls.toLocaleString()"></p>
+                <p class="mono text-[10px] uppercase tracking-widest font-bold opacity-60 mt-1">Tool calls by agents</p>
+              </div>
+              <div class="card p-4 rotate-1">
+                <p class="display" style="font-size:2rem;color:#FF2D8B" x-text="ds.wraps.toLocaleString()"></p>
+                <p class="mono text-[10px] uppercase tracking-widest font-bold opacity-60 mt-1">Wallets wrapped by people</p>
+              </div>
+              <div class="card p-4 -rotate-1">
+                <p class="display" style="font-size:2rem;color:#00A676" x-text="ds.uniqueWallets.toLocaleString()"></p>
+                <p class="mono text-[10px] uppercase tracking-widest font-bold opacity-60 mt-1">Unique addresses profiled</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -291,7 +307,15 @@
               slideshow to hand back to its human. Archetype, scores, portfolio, and a verdict
               nobody asked for.
             </p>
-            <button @click="loadSample()" class="rv btn px-7 py-4 bg-white text-sm">See a sample wrap</button>
+
+            <div class="rv flex w-full frame bg-white" style="max-width:560px;margin:0 auto">
+              <input type="text" x-model="address" @keydown.enter="wrap()" placeholder="0x..."
+                     class="flex-1 px-5 py-5 border-none outline-none text-base mono bg-white text-[var(--ink)]">
+              <button @click="wrap()" class="px-8 py-5 bg-[#FF5C00] text-white display text-lg border-l-[5px] border-[var(--ink)] hover:bg-[#e85218] active:translate-x-[2px]">WRAP</button>
+            </div>
+            <button @click="loadSample()" class="rv mono text-xs uppercase tracking-widest font-bold underline underline-offset-4 hover:text-[#FF2D8B]" style="margin-top:20px">
+              or see a sample wrap
+            </button>
           </div>
         </section>
 
@@ -503,6 +527,34 @@
           { bg:'#FFD400', ink:'#0a0a0a' }, // summary
         ],
 
+        // ---- live usage counters ----
+        statsReady: false,
+        ds: { wraps: 0, agentCalls: 0, uniqueWallets: 0 },
+
+        async loadStats() {
+          try {
+            const res = await fetch('/api/stats');
+            if (!res.ok) return;
+            const s = await res.json();
+            // Only show the strip once there is something real to show.
+            if (!s.wraps && !s.agentCalls) return;
+            this.statsReady = true;
+            this.$nextTick(() => {
+              Object.keys(this.ds).forEach(k => this.tween('ds', k, s[k] || 0));
+            });
+          } catch { /* counters are decoration; never block the page */ }
+        },
+
+        tween(obj, key, target) {
+          const start = performance.now(), dur = 1100;
+          const step = now => {
+            const t = Math.min(1, (now - start) / dur);
+            this[obj][key] = Math.round((1 - Math.pow(1 - t, 3)) * target);
+            if (t < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        },
+
         // ---- landing page content ----
         signalList: [
           'nightOwl', 'approvalHeavy', 'likelyBot', 'dustPattern',
@@ -535,6 +587,7 @@
         ],
 
         initReveal() {
+          this.loadStats();
           this.$nextTick(() => {
             const io = new IntersectionObserver((entries) => {
               entries.forEach(e => {

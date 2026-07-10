@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+        working-directory: backend
+      - run: npx tsc --noEmit
+        working-directory: backend
+
+  deploy:
+    name: Deploy to VPS
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull, build, restart
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /home/ubuntu/txwrap
+
+            # Drop runtime artifacts so the fast-forward never conflicts.
+            git checkout -- . || true
+            git pull --ff-only origin main
+
+            cd backend
+            npm ci
+            npm run build
+
+            # .env lives only on the server and is never touched here.
+            pm2 restart txwrap --update-env
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          sleep 5
+
+          echo "health:"
+          curl -fsS --max-time 15 https://txwrap.my.id/health | tee /dev/stderr | grep -q '"service":"txwrap"'
+
+          echo "mcp tools/list stays free:"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+            -X POST https://txwrap.my.id/mcp \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}')
+          test "$code" = "200" || { echo "expected 200, got $code"; exit 1; }
+
+          echo "x402 enabled:"
+          curl -fsS --max-time 15 https://txwrap.my.id/x402/info | grep -q '"x402Version":2'
+
+          echo "all good"

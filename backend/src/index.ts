@@ -9,6 +9,7 @@ import { buildSlideshowHtml } from "./renderer.js";
 import { buildMcpServer } from "./mcp.js";
 import { x402Gate, x402Info } from "./x402.js";
 import { renderOgPng } from "./og.js";
+import { initStats, recordWrap, recordAgentCall, getStats } from "./stats.js";
 import type { TxWrapRequest, TxWrapResponse, WalletMetrics } from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,6 +89,11 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "txwrap" });
 });
 
+// Real usage counters — see stats.ts. Nothing here is seeded or inflated.
+app.get("/api/stats", (_req, res) => {
+  res.json(getStats());
+});
+
 // x402 pricing / status info for agents and judges.
 app.get("/x402/info", (_req, res) => {
   res.json(x402Info());
@@ -97,6 +103,9 @@ app.get("/x402/info", (_req, res) => {
 // fresh server + transport so there is no cross-request session state.
 // Tool calls are metered by the x402 gate (freemium + HTTP 402).
 app.post("/mcp", x402Gate, async (req, res) => {
+  if ((req.body as { method?: string } | undefined)?.method === "tools/call") {
+    recordAgentCall();
+  }
   const server = buildMcpServer();
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   res.on("close", () => {
@@ -152,6 +161,8 @@ app.post("/api/txwrap", async (req, res) => {
     const stalePng = path.join(SLIDES_DIR, `${address.toLowerCase()}.png`);
     if (fs.existsSync(stalePng)) fs.unlinkSync(stalePng);
 
+    recordWrap(address);
+
     const baseUrl = `${req.protocol}://${req.get("host") || `localhost:${config.port}`}`;
     const slideshowUrl = `${baseUrl}/wrap/${address}`;
 
@@ -176,6 +187,8 @@ app.post("/api/txwrap", async (req, res) => {
     res.status(500).json(response);
   }
 });
+
+initStats(path.join(__dirname, "..", "data"));
 
 app.listen(config.port, () => {
   console.log(`TxWrap server running on port ${config.port}`);

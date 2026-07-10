@@ -226,6 +226,7 @@ Check live pricing any time: `GET /x402/info`.
 | `GET` | `/wrap/:address` | Shareable slideshow, with per-address OG meta | Free |
 | `GET` | `/og/:address.png` | Server-rendered 1200×630 share card | Free |
 | `GET` | `/x402/info` | Pricing and payment status | Free |
+| `GET` | `/api/stats` | Real usage counters: agent tool calls, human wraps, unique addresses | Free |
 | `GET` | `/health` | Liveness probe | Free |
 
 ---
