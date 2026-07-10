@@ -20,7 +20,31 @@ function isoNow(): string {
   return new Date().toISOString().slice(0, -5) + "Z";
 }
 
-function request(method: string, path: string): Promise<string> {
+export class XLayerRateLimitError extends Error {
+  constructor() {
+    super("X Layer API rate limit (429)");
+    this.name = "XLayerRateLimitError";
+  }
+}
+
+// The upstream throttles bursts, and a single profile fans out to ~12 calls.
+// Serialize them behind a minimum gap so we never trip the limiter instead of
+// firing everything at once and retrying our way out of it.
+const MIN_GAP_MS = 120;
+let chain: Promise<unknown> = Promise.resolve();
+
+function schedule<T>(fn: () => Promise<T>): Promise<T> {
+  const run = chain.then(async () => {
+    const result = await fn();
+    await new Promise((r) => setTimeout(r, MIN_GAP_MS));
+    return result;
+  });
+  // Keep the chain alive even when a call rejects.
+  chain = run.catch(() => undefined);
+  return run;
+}
+
+function rawRequest(method: string, path: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const timestamp = isoNow();
     const signature = sign(timestamp, method, path, "");
@@ -48,6 +72,8 @@ function request(method: string, path: string): Promise<string> {
       res.on("end", () => {
         if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
           resolve(data);
+        } else if (res.statusCode === 429) {
+          reject(new XLayerRateLimitError());
         } else {
           reject(
             new Error(
@@ -63,15 +89,50 @@ function request(method: string, path: string): Promise<string> {
   });
 }
 
-async function apiGet<T>(path: string): Promise<T> {
-  const raw = await request("GET", path);
+// The upstream can answer `code: "0"` with an empty `data` array — most often
+// when a burst of parallel requests gets throttled. Reading `data[0]` blindly
+// then blew up far downstream as "Cannot read properties of undefined".
+export class XLayerEmptyDataError extends Error {
+  constructor(path: string) {
+    super(`X Layer API returned no data for ${path}`);
+    this.name = "XLayerEmptyDataError";
+  }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function apiGetOnce<T>(path: string): Promise<T> {
+  const raw = await schedule(() => rawRequest("GET", path));
   const json = JSON.parse(raw);
 
+  // 50011 is the throttling code; it can arrive with a 200 status.
+  if (json.code === "50011") throw new XLayerRateLimitError();
   if (json.code !== "0") {
     throw new Error(`X Layer API error: ${json.code} ${json.msg}`);
   }
 
-  return json.data[0];
+  const first = Array.isArray(json.data) ? json.data[0] : undefined;
+  if (first === undefined) throw new XLayerEmptyDataError(path);
+
+  return first as T;
+}
+
+// Retry the two throttling symptoms — an outright 429, and a 200 whose `data`
+// came back empty. A genuinely empty response stays empty after the retries.
+async function apiGet<T>(path: string, attempts = 4): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await apiGetOnce<T>(path);
+    } catch (err) {
+      lastErr = err;
+      const retryable =
+        err instanceof XLayerEmptyDataError || err instanceof XLayerRateLimitError;
+      if (!retryable || i === attempts - 1) break;
+      await sleep(400 * 2 ** i); // 400ms, 800ms, 1.6s
+    }
+  }
+  throw lastErr;
 }
 
 export interface XlayerAddressInfo {

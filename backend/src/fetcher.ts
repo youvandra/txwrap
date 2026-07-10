@@ -6,6 +6,7 @@ import {
   getTokenTransactions,
   getInternalTransactions,
   getCrossChainTransactions,
+  XLayerEmptyDataError,
 } from "./xlayer-client.js";
 
 export interface AddressProfile {
@@ -37,7 +38,15 @@ export async function fetchAllTransactions(
   const seen = new Set<string>();
 
   for (let page = 1; page <= maxPages; page++) {
-    const data = await getAddressTransactions(address, page, 50);
+    // A wallet with no history returns an empty payload; that is not an error,
+    // it just means there is nothing more to page through.
+    let data;
+    try {
+      data = await getAddressTransactions(address, page, 50);
+    } catch (err) {
+      if (err instanceof XLayerEmptyDataError) break;
+      throw err;
+    }
     const list = data.transactionLists || [];
 
     for (const tx of list) {

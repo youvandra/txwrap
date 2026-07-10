@@ -10,6 +10,7 @@ import { buildMcpServer } from "./mcp.js";
 import { x402Gate, x402Info } from "./x402.js";
 import { renderOgPng } from "./og.js";
 import { initStats, recordWrap, recordAgentCall, getStats } from "./stats.js";
+import { XLayerEmptyDataError, XLayerRateLimitError } from "./xlayer-client.js";
 import type { TxWrapRequest, TxWrapResponse, WalletMetrics } from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -178,11 +179,29 @@ app.post("/api/txwrap", async (req, res) => {
 
     res.json(response);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
     console.error("TxWrap error:", err);
+
+    // Upstream gave us nothing for this address — that is a 404 for the caller,
+    // not a server fault, and it deserves a sentence rather than a stack trace.
+    if (err instanceof XLayerEmptyDataError) {
+      res.status(404).json({
+        success: false,
+        error: "No X Layer activity found for this address. Try one that has transacted on X Layer.",
+      } satisfies TxWrapResponse);
+      return;
+    }
+
+    if (err instanceof XLayerRateLimitError) {
+      res.status(503).json({
+        success: false,
+        error: "X Layer is rate-limiting us right now. Please try again in a moment.",
+      } satisfies TxWrapResponse);
+      return;
+    }
+
     const response: TxWrapResponse = {
       success: false,
-      error: message,
+      error: "Could not profile this wallet right now. Please try again.",
     };
     res.status(500).json(response);
   }
