@@ -133,6 +133,7 @@ export function buildMcpServer(): McpServer {
             archetype: metrics.archetype,
             confidence: metrics.archetypeConfidence,
             rarity: metrics.rarity,
+            momentum: metrics.trajectory.momentum,
             netWorthUsd: metrics.netWorthUsd,
             tokensHeld: metrics.portfolio.tokenCount,
             crossChainTransfers: metrics.crossChain.total,

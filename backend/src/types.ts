@@ -78,6 +78,15 @@ export interface WalletSignals {
   contractHeavy: boolean;
 }
 
+// Recent-activity direction, so an agent sees where a wallet is heading — not
+// just a static snapshot. Counts are within the analyzed window.
+export interface WalletTrajectory {
+  tx7d: number; // transactions in the last 7 days
+  tx30d: number; // transactions in the last 30 days
+  prev7d: number; // transactions in the 7 days before last (days 8–14)
+  momentum: "heating" | "cooling" | "steady" | "dormant";
+}
+
 // What the analysis was based on, so an agent can weigh how much to trust it.
 export interface AnalysisEvidence {
   analyzedTx: number;
@@ -110,6 +119,7 @@ export interface WalletMetrics {
   topFrenemyLabel: string;
   peakHour: number;
   activityStreak: number;
+  trajectory: WalletTrajectory;
   archetype: WalletArchetype;
   archetypeConfidence: number;
   signals: WalletSignals;

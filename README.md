@@ -129,6 +129,7 @@ tour the slideshow with no wallet needed.
   "defiScore": 78, "airdropScore": 82, "degenScore": 91, "whaleometer": 67,
   "diamondHandsDays": 14, "uniqueProtocols": 19,
   "peakHour": 2, "activityStreak": 23,
+  "trajectory": { "tx7d": 12, "tx30d": 48, "prev7d": 7, "momentum": "heating" },
   "topFrenemy": "0x8f3a…7f80", "topFrenemyLabel": "0x8f3a…7f80",
 
   "signals": { "nightOwl": true, "approvalHeavy": true, "likelyBot": false, /* … */ },
@@ -333,8 +334,10 @@ reliability that both depend on.
   ([`blocklist.ts`](backend/src/blocklist.ts), extendable via
   `BLOCKLIST_ADDRESSES`). Unlimited-approval *amount* detection remains future
   work (needs decoded call data the tx-list endpoint doesn't return).
-- **Wallet trajectory** — 7-day vs 30-day volume and activity trend, so an agent
-  sees direction (heating up vs. going dormant), not just a snapshot.
+- **Wallet trajectory** ✅ *shipped* — every profile carries a `trajectory` block
+  (`tx7d`, `tx30d`, `prev7d`, and a `momentum` of heating / cooling / steady /
+  dormant), so an agent sees direction, not just a snapshot. `compare_wallets`
+  surfaces `momentum` per wallet.
 
 ### Reliability
 - **Per-address profile cache** ✅ *shipped* — a short-TTL in-memory cache of

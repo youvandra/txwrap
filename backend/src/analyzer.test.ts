@@ -154,6 +154,28 @@ test("activityStreak counts the longest run of consecutive days", async () => {
   assert.equal(m.activityStreak, 3);
 });
 
+test("trajectory reads dormant when nothing is recent", async () => {
+  // makeData's default tx() timestamps are in early 2025 — far past 30 days.
+  const m = await analyzeWallet(makeData({ transactions: [tx()] }), 10);
+  assert.equal(m.trajectory.momentum, "dormant");
+  assert.equal(m.trajectory.tx30d, 0);
+});
+
+test("trajectory reads heating when recent week outpaces the prior week", async () => {
+  const DAY = 86400000;
+  const now = Date.now();
+  const at = (daysAgo: number) => tx({ timestamp: now - daysAgo * DAY });
+  const transactions = [
+    at(1), at(2), at(3), at(4), // 4 in last 7d
+    at(10), // 1 in the prior 7d
+  ];
+  const m = await analyzeWallet(makeData({ transactions }), 10);
+  assert.equal(m.trajectory.tx7d, 4);
+  assert.equal(m.trajectory.prev7d, 1);
+  assert.equal(m.trajectory.tx30d, 5);
+  assert.equal(m.trajectory.momentum, "heating");
+});
+
 test("stablecoin-dominant portfolio sets stablecoinHeavy", async () => {
   const m = await analyzeWallet(
     makeData({

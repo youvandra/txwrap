@@ -4,6 +4,7 @@ import type {
   WalletArchetype,
   ActivityBreakdown,
   WalletSignals,
+  WalletTrajectory,
   AnalysisEvidence,
   TokenHolding,
   TokenTransfer,
@@ -198,6 +199,30 @@ function computeActivityStreak(dailyActivity: Set<string>): number {
   }
 
   return maxStreak;
+}
+
+// Recent-activity direction from the analyzed transactions. Compares the last 7
+// days against the 7 before to call momentum; a wallet silent for 30 days reads
+// as dormant regardless.
+function computeTrajectory(txs: OkLinkTransaction[], now = Date.now()): WalletTrajectory {
+  const DAY = 86400000;
+  let tx7d = 0;
+  let tx30d = 0;
+  let prev7d = 0;
+  for (const tx of txs) {
+    const days = (now - tx.timestamp) / DAY;
+    if (days < 0) continue;
+    if (days <= 7) tx7d++;
+    if (days <= 30) tx30d++;
+    if (days > 7 && days <= 14) prev7d++;
+  }
+  let momentum: WalletTrajectory["momentum"];
+  if (tx30d === 0) momentum = "dormant";
+  else if (tx7d === 0) momentum = "cooling";
+  else if (tx7d >= prev7d * 1.5) momentum = "heating";
+  else if (tx7d * 1.5 <= prev7d) momentum = "cooling";
+  else momentum = "steady";
+  return { tx7d, tx30d, prev7d, momentum };
 }
 
 function classifyArchetype(
@@ -442,6 +467,7 @@ export async function analyzeWallet(
     topFrenemyLabel: labelAddress(topFrenemy),
     peakHour: findPeakHour(hourCounts),
     activityStreak: computeActivityStreak(dailyActivity),
+    trajectory: computeTrajectory(transactions),
     archetype,
     archetypeConfidence,
     signals,
