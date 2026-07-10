@@ -8,10 +8,11 @@ export const config = {
   xlayerPassphrase: process.env.XLAYER_PASSPHRASE || "",
   sumopodApiKey: process.env.SUMOPOD_API_KEY || "",
   sumopodBaseUrl: "https://ai.sumopod.com/v1",
-  // x402 payment gate (see x402.ts): off | demo | facilitator
+  // x402 payment gate (see x402.ts): off | on. When on, tool calls past the
+  // free quota are charged via the OKX facilitator, which reuses the XLAYER_*
+  // API credentials above.
   x402Mode: process.env.X402_MODE || "off",
   x402PayTo: process.env.X402_PAY_TO || "",
   x402PriceUsd: process.env.X402_PRICE_USD || "0.05",
   x402FreeDaily: parseInt(process.env.X402_FREE_DAILY || "20", 10),
-  x402FacilitatorUrl: process.env.X402_FACILITATOR_URL || "",
 };
