@@ -1,7 +1,8 @@
 // TxWrap MCP server — exposes the wallet-intelligence pipeline as agent tools.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { profileWallet } from "./service.js";
+import { profileWallet, getSybilFeatures } from "./service.js";
+import { analyzeSybils } from "./sybil.js";
 import type { WalletMetrics } from "./types.js";
 
 const ADDRESS = z
@@ -123,6 +124,20 @@ export function buildMcpServer(): McpServer {
         })
       );
       return json({ compared: wallets.length, wallets });
+    }
+  );
+
+  server.registerTool(
+    "find_sybils",
+    {
+      title: "Find sybils / coordinated wallets",
+      description:
+        "Screen 3-20 X Layer wallets for coordination (a sybil farm). Detects shared counterparties, a shared funding source, and correlated activity timing, then groups linked wallets into clusters with a per-pair coordination score and evidence. Use before an airdrop, grant, or allowlist to spot wallets that are really one operator.",
+      inputSchema: { addresses: z.array(ADDRESS).min(3).max(20) },
+    },
+    async ({ addresses }) => {
+      const features = await Promise.all(addresses.map((a) => getSybilFeatures(a)));
+      return json(analyzeSybils(features));
     }
   );
 

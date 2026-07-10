@@ -6,12 +6,14 @@ import { generatePersonality } from "./personality.js";
 import { buildMarkdown } from "./renderer.js";
 import { TtlCache } from "./cache.js";
 import { config } from "./config.js";
+import { extractSybilFeatures, type SybilFeatures } from "./sybil.js";
 import type { WalletMetrics, WalletPersonality } from "./types.js";
 
 // Metrics are the expensive part of a profile (~12 upstream X Layer calls);
 // the roast is a cheap garnish layered on top. So we cache metrics only, keyed
 // by lowercased address, and always regenerate the roast fresh when asked.
 const metricsCache = new TtlCache<WalletMetrics>(config.profileCacheTtlMs);
+const sybilCache = new TtlCache<SybilFeatures>(config.profileCacheTtlMs);
 
 async function getMetrics(address: string): Promise<WalletMetrics> {
   const key = address.toLowerCase();
@@ -22,6 +24,22 @@ async function getMetrics(address: string): Promise<WalletMetrics> {
   const metrics = await analyzeWallet(data);
   metricsCache.set(key, metrics);
   return metrics;
+}
+
+// Coordination features for the find_sybils tool, cached like metrics so
+// screening a set repeatedly (or overlapping sets) doesn't re-fetch.
+export async function getSybilFeatures(address: string): Promise<SybilFeatures> {
+  if (!isValidAddress(address)) {
+    throw new Error("Invalid address format. Must be a 0x-prefixed 42-char address.");
+  }
+  const key = address.toLowerCase();
+  const cached = sybilCache.get(key);
+  if (cached) return cached;
+
+  const data = await fetchFullWalletData(address);
+  const features = extractSybilFeatures(address, data);
+  sybilCache.set(key, features);
+  return features;
 }
 
 export interface WalletProfileResult {

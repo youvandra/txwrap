@@ -220,7 +220,7 @@
         <section class="sec" style="background:#C6FF00">
           <div class="deco deco-8"></div>
           <div class="wrapx">
-            <div class="eyebrow rv">Four MCP tools</div>
+            <div class="eyebrow rv">Five MCP tools</div>
             <h2 class="h2 rv">CALL IT LIKE<br>ANY OTHER TOOL.</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="margin-top:36px">
               <template x-for="t in tools" :key="t.name">
@@ -571,6 +571,8 @@
             desc: 'Two to five addresses, side by side. Pick the safest counterparty or spot the farmer in the set.' },
           { name: 'classify_wallet', title: 'Cheap check', hex: '#C68A00', tilt: '-rotate-1',
             desc: 'Just the archetype, confidence, rarity tier and active signals. For when you do not need the whole profile.' },
+          { name: 'find_sybils', title: 'Spot the farm', hex: '#8B3DFF', tilt: 'rotate-1',
+            desc: 'Screen 3–20 wallets for coordination: shared counterparties, shared funder, correlated timing. Clusters the sybils before you airdrop.' },
         ],
         steps: [
           { t: 'Fetch, in parallel', d: 'Seven X Layer Data API endpoints at once: balances, native transactions, ERC-20 holdings, NFT count, token transfer flows, internal contract calls, and cross-chain hops. Any supplementary endpoint may fail without taking the profile down.' },

@@ -95,6 +95,7 @@ tour the slideshow with no wallet needed.
 | `classify_wallet` | `address` | Cheap check: archetype, confidence, rarity tier, active signals, evidence. |
 | `screen_wallet` | `address` | Risk screen: coarse risk level, risk flags, all 13 signals, evidence. |
 | `compare_wallets` | `addresses[2..5]` | Side-by-side profiles, scores, and signals for ranking. |
+| `find_sybils` | `addresses[3..20]` | Coordination screen: clusters wallets by shared counterparties, shared funder, and correlated timing, with a per-pair score. |
 
 ### Profile shape
 
@@ -167,6 +168,7 @@ Thirteen boolean flags, each derived only from what X Layer actually exposes:
 |---|---|---|
 | Trading / OTC | *"Before I send funds to `0xABC…`, screen it for bot / sybil / dust-farming risk."* | `screen_wallet` |
 | Airdrop / protocol | *"I'm airdropping to these 5 wallets — which look like farmers?"* | `compare_wallets` + `screen_wallet` |
+| Airdrop / anti-sybil | *"Are these 12 wallets secretly one operator?"* | `find_sybils` |
 | Research / portfolio | *"What kind of trader is `0xABC…`?"* | `profile_wallet` |
 | Risk | *"Rank these 3 addresses by activity and trustworthiness."* | `compare_wallets` |
 | Growth / CRM | *"Classify these wallets into archetypes for our outreach list."* | `classify_wallet` |
@@ -313,9 +315,11 @@ reliability that both depend on.
   verified X Layer DEX, bridge, and token contracts so `topFrenemy`, swap
   detection, and the roast read real names instead of short hex. The mechanism
   (registry + honest short-hex fallback) already ships; this fills it with data.
-- **`find_sybils` tool** — take 3–20 addresses and flag coordinated clusters
-  (shared counterparties, correlated timing, uniform dust). A new primitive for
-  airdrop and grant screening.
+- **`find_sybils` tool** ✅ *shipped* — take 3–20 addresses and flag coordinated
+  clusters ([`sybil.ts`](backend/src/sybil.ts)): shared counterparties (Jaccard),
+  shared funding source, and correlated activity timing (cosine), grouped via
+  union-find with a per-pair coordination score. A primitive for airdrop and
+  grant screening.
 - **Drainer / blocklist screen** — extend `screen_wallet` with unlimited-approval
   detection and a known-malicious address list, so *"can I trust this
   counterparty?"* gets a real answer.
@@ -394,7 +398,8 @@ npx tsc --noEmit  # typecheck
 backend/src/
   index.ts          Express server, routes, MCP + OG mounting
   service.ts        Shared pipeline: fetch -> analyze -> (roast)
-  mcp.ts            MCP server, four agent tools
+  mcp.ts            MCP server, five agent tools
+  sybil.ts          Coordination / sybil detection (pure, used by find_sybils)
   x402.ts           Payment gate (freemium + HTTP 402)
   xlayer-client.ts  X Layer Data API, HMAC-SHA256 auth
   fetcher.ts        Parallel fetches, graceful degradation
