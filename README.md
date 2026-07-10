@@ -95,6 +95,7 @@ tour the slideshow with no wallet needed.
 | `classify_wallet` | `address` | Cheap check: archetype, confidence, rarity tier, active signals, evidence. |
 | `screen_wallet` | `address` | Risk screen: coarse risk level, risk flags, all 13 signals, evidence. |
 | `compare_wallets` | `addresses[2..5]` | Side-by-side profiles, scores, and signals for ranking. |
+- [JMT x402 Agent Tools](https://jmt-x402-proxy.jmthomasofficial.workers.dev) — 25 paid x402 endpoints on Base mainnet: web search, AI analysis, crypto/stock data, SEC filings, company intel, news, sentiment, macro dashboard. $0.001-$0.15/call USDC. Local LLM-powered.
 
 ### Profile shape
 
