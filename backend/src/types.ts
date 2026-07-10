@@ -87,6 +87,15 @@ export interface WalletTrajectory {
   momentum: "heating" | "cooling" | "steady" | "dormant";
 }
 
+// The wallet's most-transacted-with outgoing counterparties, labeled when the
+// address is in the verified registry (labels.ts) — real due-diligence surface,
+// not just the single "top frenemy".
+export interface Counterparty {
+  address: string;
+  label: string; // verified name or honest short hex
+  txCount: number;
+}
+
 // What the analysis was based on, so an agent can weigh how much to trust it.
 export interface AnalysisEvidence {
   analyzedTx: number;
@@ -117,12 +126,17 @@ export interface WalletMetrics {
   uniqueProtocols: number;
   topFrenemy: string;
   topFrenemyLabel: string;
+  topCounterparties: Counterparty[];
   peakHour: number;
   activityStreak: number;
   trajectory: WalletTrajectory;
   archetype: WalletArchetype;
   archetypeConfidence: number;
   signals: WalletSignals;
+  // The numbers behind every fired signal ("38% of 250 analyzed txs between
+  // 00:00-06:00 UTC"), so an agent can justify a decision, not just cite a
+  // boolean. Only fired signals get an entry.
+  signalReasons: Partial<Record<keyof WalletSignals, string>>;
   evidence: AnalysisEvidence;
   rarity: string;
   // Honest population percentile, added by service.ts only once enough wallets

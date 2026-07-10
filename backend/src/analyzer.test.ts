@@ -176,6 +176,38 @@ test("trajectory reads heating when recent week outpaces the prior week", async 
   assert.equal(m.trajectory.momentum, "heating");
 });
 
+test("fired signals carry a numeric reason; silent ones carry none", async () => {
+  const transactions = Array.from({ length: 10 }, (_, i) =>
+    tx({
+      methodId: SWAP,
+      to: `0x33333333333333333333333333333333333333${(10 + i).toString()}`,
+      timestamp: tsAt(0, 2),
+    })
+  );
+  const m = await analyzeWallet(makeData({ transactions }), 10);
+  assert.equal(m.signals.highSwapActivity, true);
+  assert.match(m.signalReasons.highSwapActivity!, /10 swaps = 100% of analyzed txs/);
+  assert.match(m.signalReasons.nightOwl!, /100% of 10 analyzed txs/);
+  assert.equal(m.signals.whale, false);
+  assert.equal(m.signalReasons.whale, undefined);
+});
+
+test("topCounterparties ranks outgoing recipients with labels", async () => {
+  const USDC = "0x74b7f16337b8972027f6196a17a631ac6de26d22"; // seeded label
+  const OTHER = "0x9999999999999999999999999999999999999999";
+  const transactions = [
+    tx({ to: USDC }), tx({ to: USDC }), tx({ to: USDC }),
+    tx({ to: OTHER }),
+  ];
+  const m = await analyzeWallet(makeData({ transactions }), 10);
+  assert.equal(m.topCounterparties.length, 2);
+  assert.equal(m.topCounterparties[0].address, USDC);
+  assert.equal(m.topCounterparties[0].label, "USDC");
+  assert.equal(m.topCounterparties[0].txCount, 3);
+  assert.equal(m.topCounterparties[1].txCount, 1);
+  assert.match(m.topCounterparties[1].label, /^0x9999…9999$/);
+});
+
 test("stablecoin-dominant portfolio sets stablecoinHeavy", async () => {
   const m = await analyzeWallet(
     makeData({

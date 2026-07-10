@@ -93,7 +93,7 @@ tour the slideshow with no wallet needed.
 |------|-------|---------|
 | `profile_wallet` | `address`, `roast?` | Full profile: archetype (+confidence), activity breakdown, portfolio, scores, signals, top counterparty, evidence. With `roast: true`, adds a human summary + slideshow URL. |
 | `classify_wallet` | `address` | Cheap check: archetype, confidence, rarity tier, active signals, evidence. |
-| `screen_wallet` | `address` | Risk screen: coarse risk level, risk flags, all 13 signals, a blocklist check (self + counterparties), evidence. |
+| `screen_wallet` | `address` | Risk screen: coarse risk level, a `proceed`/`caution`/`avoid` recommendation with per-flag numeric `reasons`, all 13 signals, a blocklist check (self + counterparties), evidence. |
 | `compare_wallets` | `addresses[2..5]` | Side-by-side profiles, scores, and signals for ranking. |
 | `find_sybils` | `addresses[3..20]` | Coordination screen: clusters wallets by shared counterparties, shared funder, and correlated timing, with a per-pair score. |
 
@@ -135,13 +135,26 @@ tour the slideshow with no wallet needed.
   "peakHour": 2, "activityStreak": 23,
   "trajectory": { "tx7d": 12, "tx30d": 48, "prev7d": 7, "momentum": "heating" },
   "topFrenemy": "0x8f3a…7f80", "topFrenemyLabel": "0x8f3a…7f80",
+  "topCounterparties": [           // top-5 outgoing, labeled when verified
+    { "address": "0x74b7…6d22", "label": "USDC", "txCount": 41 }
+  ],
 
+  "summary": "The 2AM Degen (confidence 0.85, S-Tier), momentum heating, …",
   "signals": { "nightOwl": true, "approvalHeavy": true, "likelyBot": false, /* … */ },
+  "signalReasons": {               // the numbers behind every fired signal
+    "nightOwl": "38% of 250 analyzed txs between 00:00-06:00 UTC",
+    "approvalHeavy": "47 approvals in 250 analyzed txs"
+  },
   "evidence": { "analyzedTx": 250, "totalTx": 847, "window": "…", "caveat": "…" }
 }
 ```
 
 ### Signals
+
+Every tool result also carries a deterministic one-sentence `summary` an agent
+can relay verbatim (no AI call involved), and every *fired* signal comes with a
+`signalReasons` entry holding the actual numbers behind it — so a decision can
+be justified, not just made.
 
 Thirteen boolean flags, each derived only from what X Layer actually exposes:
 
@@ -327,6 +340,11 @@ product optimizes for — agent decision-value and human virality — plus the
 reliability that both depend on.
 
 ### Agent intelligence
+- **Decision-grade output v2** ✅ *shipped* — every fired signal ships its
+  numeric justification (`signalReasons`), every profile lists its top-5 labeled
+  counterparties, every tool result opens with a deterministic `summary`
+  sentence, and `screen_wallet` returns an actionable
+  `proceed`/`caution`/`avoid` recommendation with per-flag `reasons`.
 - **Protocol & address labels** ✅ *shipped (tokens)* —
   [`labels.ts`](backend/src/labels.ts) is now seeded with verified X Layer token
   contracts (WOKB, USDT0, USDC, DAI, USDG, xETH/xSOL/xBTC…) from OKX's official

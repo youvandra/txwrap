@@ -5,6 +5,7 @@ import type {
   ActivityBreakdown,
   WalletSignals,
   WalletTrajectory,
+  Counterparty,
   AnalysisEvidence,
   TokenHolding,
   TokenTransfer,
@@ -148,6 +149,20 @@ function computeDiamondHands(txs: OkLinkTransaction[], address: string): number 
   }
 
   return count > 0 ? Math.round(totalHoldDays / count) : 0;
+}
+
+// Top-N outgoing counterparties, most-transacted first, with verified labels.
+function topCounterparties(
+  recipientCounts: Map<string, number>,
+  address: string,
+  n = 5
+): Counterparty[] {
+  const self = address.toLowerCase();
+  return [...recipientCounts.entries()]
+    .filter(([addr]) => addr !== self)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([addr, txCount]) => ({ address: addr, label: labelAddress(addr), txCount }));
 }
 
 function findTopFrenemy(
@@ -416,6 +431,38 @@ export async function analyzeWallet(
     contractHeavy: internalTxCount > totalTxs && totalTxs > 0,
   };
 
+  // The numbers behind every fired signal, so an agent can cite *why* a flag
+  // is up rather than trusting a bare boolean. Only fired signals get a line.
+  const signalReasons: Partial<Record<keyof WalletSignals, string>> = {};
+  if (signals.nightOwl)
+    signalReasons.nightOwl = `${Math.round(nightRatio * 100)}% of ${totalTxs} analyzed txs between 00:00-06:00 UTC`;
+  if (signals.approvalHeavy)
+    signalReasons.approvalHeavy = `${approveCount} approvals in ${totalTxs} analyzed txs`;
+  if (signals.likelyBot)
+    signalReasons.likelyBot = `${Math.round(nightRatio * 100)}% night-hour activity across ${totalTxs} analyzed txs — machine-like schedule`;
+  if (signals.dustPattern)
+    signalReasons.dustPattern = `average tx value ${avgTxValue.toFixed(6)} ${sym} across ${totalTxs} analyzed txs`;
+  if (signals.highSwapActivity)
+    signalReasons.highSwapActivity = `${swapCount} swaps = ${Math.round(swapRatio * 100)}% of analyzed txs`;
+  if (signals.newWallet)
+    signalReasons.newWallet = `first transaction ${Math.round(ageDays)} day(s) ago`;
+  if (signals.dormant)
+    signalReasons.dormant = Number.isFinite(daysSinceLast)
+      ? `no activity for ${Math.round(daysSinceLast)} days`
+      : "no recorded activity";
+  if (signals.whale)
+    signalReasons.whale = `${balanceEth.toFixed(2)} ${sym} native + $${netWorthUsd.toFixed(2)} net worth`;
+  if (signals.diversifiedPortfolio)
+    signalReasons.diversifiedPortfolio = `${portfolio.tokenCount} ERC-20 tokens held`;
+  if (signals.stablecoinHeavy)
+    signalReasons.stablecoinHeavy = `${Math.round((portfolio.stablecoinValueUsd / portfolio.totalValueUsd) * 100)}% of portfolio value in stablecoins`;
+  if (signals.crossChainUser)
+    signalReasons.crossChainUser = `${crossChain.total} X Layer <-> TradeZone transfer(s)`;
+  if (signals.nftCollector)
+    signalReasons.nftCollector = `${nftCount} NFT(s) held`;
+  if (signals.contractHeavy)
+    signalReasons.contractHeavy = `${internalTxCount}+ internal (contract) txs vs ${totalTxs} analyzed external txs`;
+
   // Heuristic confidence: more analyzed transactions and a more decisive
   // standout score => higher confidence. Capped below 1 — we never claim
   // certainty from a recent-activity window.
@@ -465,12 +512,14 @@ export async function analyzeWallet(
     uniqueProtocols,
     topFrenemy,
     topFrenemyLabel: labelAddress(topFrenemy),
+    topCounterparties: topCounterparties(recipientCounts, address),
     peakHour: findPeakHour(hourCounts),
     activityStreak: computeActivityStreak(dailyActivity),
     trajectory: computeTrajectory(transactions),
     archetype,
     archetypeConfidence,
     signals,
+    signalReasons,
     evidence,
     rarity: rarityTier(Math.max(defiScore, airdropScore, degenScore, whaleometer)),
     sarcasticTitle: generateSarcasticTitle(

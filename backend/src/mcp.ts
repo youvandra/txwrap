@@ -22,6 +22,19 @@ function json(data: unknown) {
 
 const RISK_FLAGS = ["likelyBot", "dustPattern", "approvalHeavy", "newWallet", "dormant"];
 
+// One deterministic sentence an agent can relay to its user verbatim — no
+// AI call, always present, built only from the metrics themselves.
+function summarize(metrics: WalletMetrics): string {
+  const sigs = activeSignals(metrics);
+  const pct = metrics.percentile ? `, top ${metrics.percentile.topPercent}% of profiled wallets` : "";
+  return (
+    `${metrics.archetype} (confidence ${metrics.archetypeConfidence}, ${metrics.rarity}${pct}), ` +
+    `momentum ${metrics.trajectory.momentum}, net worth $${metrics.netWorthUsd}. ` +
+    `Signals: ${sigs.length ? sigs.join(", ") : "none"}. ` +
+    `Based on ${metrics.evidence.analyzedTx} of ${metrics.evidence.totalTx} txs.`
+  );
+}
+
 export function buildMcpServer(): McpServer {
   const server = new McpServer({ name: "txwrap", version: "0.1.0" });
 
@@ -43,6 +56,7 @@ export function buildMcpServer(): McpServer {
       const r = await profileWallet(address, { roast: !!roast });
       return json({
         address: r.address,
+        summary: summarize(r.metrics),
         ...r.metrics,
         ...(r.personality ? { humanSummary: r.personality } : {}),
       });
@@ -61,6 +75,7 @@ export function buildMcpServer(): McpServer {
       const { metrics } = await profileWallet(address);
       return json({
         address,
+        summary: summarize(metrics),
         archetype: metrics.archetype,
         confidence: metrics.archetypeConfidence,
         rarity: metrics.rarity,
@@ -102,15 +117,30 @@ export function buildMcpServer(): McpServer {
             ? "medium"
             : "low";
 
+      // Actionable verdict + the numbers behind each flag, so the caller can
+      // both decide and justify the decision.
+      const recommendation = risk === "high" ? "avoid" : risk === "medium" ? "caution" : "proceed";
+      const reasons = riskFlags.map((f) => {
+        if (f === "blocklisted") return "blocklisted: address is on the known-malicious registry";
+        if (f === "interactedWithBlocklisted")
+          return `interactedWithBlocklisted: transacted with ${flaggedCounterparties.length} blocklisted counterpart(y/ies)`;
+        const why = metrics.signalReasons[f as keyof typeof metrics.signalReasons];
+        return why ? `${f}: ${why}` : f;
+      });
+
       return json({
         address,
+        summary: `Risk ${risk} — recommendation: ${recommendation}. ${reasons.length ? reasons.join("; ") + "." : "No risk flags."} Based on ${metrics.evidence.analyzedTx} of ${metrics.evidence.totalTx} txs.`,
         risk,
+        recommendation,
         riskFlags,
+        reasons,
         blocklist: {
           selfBlocklisted,
           flaggedCounterparties,
         },
         signals: metrics.signals,
+        signalReasons: metrics.signalReasons,
         confidence: metrics.archetypeConfidence,
         evidence: metrics.evidence,
       });
@@ -148,7 +178,10 @@ export function buildMcpServer(): McpServer {
           };
         })
       );
-      return json({ compared: wallets.length, wallets });
+      const summary = wallets
+        .map((w) => `${w.address.slice(0, 8)}…: ${w.archetype}, ${w.momentum}, $${w.netWorthUsd}`)
+        .join(" | ");
+      return json({ compared: wallets.length, summary, wallets });
     }
   );
 
