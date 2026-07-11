@@ -10,6 +10,7 @@ import { x402Gate, x402Info } from "./x402.js";
 import { renderOgPng } from "./og.js";
 import { initStats, recordWrap, recordAgentCall, getStats } from "./stats.js";
 import { initSnapshots } from "./snapshots.js";
+import { ATTESTATION_SIGNER, SIGNER_IS_EPHEMERAL, verifyAttestation, type Attestation } from "./attest.js";
 import { XLayerRateLimitError } from "./xlayer-client.js";
 import type { TxWrapRequest, TxWrapResponse, WalletMetrics } from "./types.js";
 
@@ -98,6 +99,32 @@ app.get("/api/stats", (_req, res) => {
 // x402 pricing / status info for agents and judges.
 app.get("/x402/info", (_req, res) => {
   res.json(x402Info());
+});
+
+// Attestation identity + self-serve verification. Screening results from
+// screen_wallet / expand_risk / check_approvals carry an `attestation` an
+// agent can hand to a third party; that party verifies it here (or offline
+// with ecrecover — the scheme is standard EIP-191).
+app.get("/attestation/info", (_req, res) => {
+  res.json({
+    signer: ATTESTATION_SIGNER,
+    ephemeral: SIGNER_IS_EPHEMERAL,
+    scheme:
+      "EIP-191 personal_sign over keccak256(canonical sorted-keys JSON of the result without the `attestation` field)",
+    verify: "POST /attestation/verify with { payload, attestation }",
+  });
+});
+
+app.post("/attestation/verify", (req, res) => {
+  const { payload, attestation } = (req.body ?? {}) as {
+    payload?: object;
+    attestation?: Attestation;
+  };
+  if (!payload || !attestation) {
+    res.status(400).json({ valid: false, error: "payload and attestation are required" });
+    return;
+  }
+  res.json({ valid: verifyAttestation(payload, attestation), signer: attestation.signer ?? null });
 });
 
 // MCP server (stateless HTTP) — the agent-facing surface. Each request gets a

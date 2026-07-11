@@ -169,6 +169,15 @@ can relay verbatim (no AI call involved), and every *fired* signal comes with a
 `signalReasons` entry holding the actual numbers behind it — so a decision can
 be justified, not just made.
 
+**Attested results.** `screen_wallet`, `expand_risk`, and `check_approvals`
+responses carry an `attestation`: an EIP-191 signature over the keccak256 of
+the canonical result, recoverable to a published signer address
+(`GET /attestation/info`). An agent can hand the result + attestation to a
+third party — another agent, or an OKX.AI dispute evaluator — who verifies it
+via `POST /attestation/verify` or plain `ecrecover`. Due diligence becomes
+*portable proof*, not a private API response. The signing key is an identity
+key only; it never holds funds.
+
 The full spec of how every number is produced ships as a free MCP resource:
 read **`txwrap://methodology`** (`resources/read`) for the exact thresholds and
 formulas behind every score, signal, archetype, and verdict — citable by any
@@ -282,6 +291,8 @@ Check live pricing any time: `GET /x402/info`.
 | `GET` | `/wrap/:address` | Shareable slideshow, with per-address OG meta | Free |
 | `GET` | `/og/:address.png` | Server-rendered 1200×630 share card | Free |
 | `GET` | `/x402/info` | Pricing and payment status | Free |
+| `GET` | `/attestation/info` | Attestation signer address + scheme | Free |
+| `POST` | `/attestation/verify` | Verify a result + attestation pair | Free |
 | `GET` | `/api/stats` | Real usage counters: agent tool calls, human wraps, unique addresses | Free |
 | `GET` | `/health` | Liveness probe | Free |
 
@@ -454,6 +465,7 @@ Then point an MCP client at `http://localhost:3001/mcp`, or open
 | `NODE_ENV` | no | `development` | Environment |
 | `PROFILE_CACHE_TTL_MS` | no | `120000` | Metrics cache TTL (ms); `0` disables |
 | `BLOCKLIST_ADDRESSES` | no | — | Extra known-malicious addresses for `screen_wallet`, comma-separated |
+| `ATTEST_PRIVATE_KEY` | no | ephemeral | Stable signer for result attestations; identity only, never holds funds |
 | `SUMOPOD_API_KEY` | no | — | Enables the AI roast layer; without it a deterministic fallback is used |
 | `X402_MODE` | no | `off` | `off` \| `on` — enable the payment gate |
 | `X402_PAY_TO` | when `on` | — | Address that receives settled USDT0 |
@@ -485,6 +497,7 @@ backend/src/
   approvals.ts      ERC-20 approval decoding — the drainer check
   snapshots.ts      Wallet snapshots + diffing (diff_wallet)
   methodology.ts    Citable spec of every formula (txwrap://methodology)
+  attest.ts         EIP-191 signed result attestations (portable proof)
   blocklist.ts      Known-malicious address registry (screen_wallet)
   x402.ts           Payment gate (freemium + HTTP 402)
   xlayer-client.ts  X Layer Data API, HMAC-SHA256 auth

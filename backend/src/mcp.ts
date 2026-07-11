@@ -10,6 +10,7 @@ import { riskLevel, recommendationFor } from "./risk.js";
 import { checkApprovals } from "./approvals.js";
 import { loadSnapshot, saveSnapshot, snapshotOf, diffSnapshots } from "./snapshots.js";
 import { METHODOLOGY, METHODOLOGY_URI } from "./methodology.js";
+import { attest } from "./attest.js";
 import { quotaStatus, x402Info } from "./x402.js";
 import type { WalletMetrics } from "./types.js";
 
@@ -142,7 +143,7 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
         return why ? `${f}: ${why}` : f;
       });
 
-      return json({
+      const result = {
         address,
         summary: `Risk ${risk} — recommendation: ${recommendation}. ${reasons.length ? reasons.join("; ") + "." : "No risk flags."} Based on ${metrics.evidence.analyzedTx} of ${metrics.evidence.totalTx} txs.`,
         risk,
@@ -157,7 +158,8 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
         signalReasons: metrics.signalReasons,
         confidence: metrics.archetypeConfidence,
         evidence: metrics.evidence,
-      });
+      };
+      return json({ ...result, attestation: await attest(result) });
     }
   );
 
@@ -274,7 +276,8 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
             (r.unlimited > 0
               ? " Unlimited allowances let the spender move that token any time — revoke unless the spender is fully trusted."
               : "");
-      return json({ summary, ...r });
+      const result = { summary, ...r };
+      return json({ ...result, attestation: await attest(result) });
     }
   );
 
@@ -322,7 +325,7 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
         `Target risk ${targetRisk}; neighborhood risk ${circleRisk} across ${screened.length} ` +
         `screened counterpart(y/ies)${risky.length ? ` — ${risky.map((n) => `${n.label}: ${n.risk}${n.blocklisted ? " (BLOCKLISTED)" : ""}`).join(", ")}` : " — circle looks clean"}.`;
 
-      return json({
+      const result = {
         address,
         summary,
         target: { risk: targetRisk, riskFlags: targetFlags, blocklisted: targetBlocklisted },
@@ -330,7 +333,8 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
         neighbors: screened,
         skippedKnownContracts: skippedKnown,
         note: "Neighbors are light-screened (profile + recent txs only). Relations come from the target's analyzed transaction window.",
-      });
+      };
+      return json({ ...result, attestation: await attest(result) });
     }
   );
 
