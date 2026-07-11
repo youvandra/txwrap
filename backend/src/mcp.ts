@@ -22,7 +22,14 @@ function json(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
 
-const RISK_FLAGS = ["likelyBot", "dustPattern", "approvalHeavy", "newWallet", "dormant"];
+const RISK_FLAGS = [
+  "likelyBot",
+  "dustPattern",
+  "approvalHeavy",
+  "newWallet",
+  "dormant",
+  "reciprocalFlow",
+];
 
 // One deterministic sentence an agent can relay to its user verbatim — no
 // AI call, always present, built only from the metrics themselves.

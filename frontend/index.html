@@ -202,7 +202,7 @@
           <div class="deco deco-6 inkw"></div>
           <div class="wrapx">
             <div class="eyebrow rv" style="background:#fff;color:var(--ink)">What comes back</div>
-            <h2 class="h2 rv">13 SIGNALS.<br>ONE VERDICT.<br>ALWAYS WITH EVIDENCE.</h2>
+            <h2 class="h2 rv">14 SIGNALS.<br>ONE VERDICT.<br>ALWAYS WITH EVIDENCE.</h2>
             <p class="lede rv" style="margin-bottom:40px">
               Every result carries <code class="mono">archetypeConfidence</code> and an
               <code class="mono">evidence</code> block — how many transactions were analyzed,
@@ -578,7 +578,7 @@
           'nightOwl', 'approvalHeavy', 'likelyBot', 'dustPattern',
           'highSwapActivity', 'newWallet', 'dormant', 'whale',
           'diversifiedPortfolio', 'stablecoinHeavy', 'crossChainUser',
-          'nftCollector', 'contractHeavy',
+          'nftCollector', 'contractHeavy', 'reciprocalFlow',
         ],
         tools: [
           { name: 'profile_wallet', title: 'The full picture', hex: '#2B4BFF', tilt: '-rotate-1',
@@ -599,7 +599,7 @@
         steps: [
           { t: 'Fetch, in parallel', d: 'Seven X Layer Data API endpoints at once: balances, native transactions, ERC-20 holdings, NFT count, token transfer flows, internal contract calls, and cross-chain hops. Any supplementary endpoint may fail without taking the profile down.' },
           { t: 'Classify every transaction', d: 'The 4-byte method selector is chain-agnostic, so each transaction resolves to swap, approve, transfer, native send, or other contract call. No guessing.' },
-          { t: 'Score, deterministically', d: 'The metrics engine is pure math. Archetype, scores, and all 13 signals fall out of thresholds you can read in the source.' },
+          { t: 'Score, deterministically', d: 'The metrics engine is pure math. Archetype, scores, and all 14 signals fall out of thresholds you can read in the source.' },
           { t: 'Attach the evidence', d: 'Confidence scales with sample size and how decisively the wallet cleared a threshold — capped below certainty, because a recent-activity window can never prove one.' },
           { t: 'Roast, optionally', d: 'The AI layer only writes the human summary. It never touches a number.' },
         ],

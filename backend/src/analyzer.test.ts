@@ -225,6 +225,29 @@ test("topSenders ranks inbound funding sources separately", async () => {
   assert.equal(m.topCounterparties[0].address, SHOP);
 });
 
+test("reciprocalFlow fires on repeated two-way ping-pong, not one-way flow", async () => {
+  const A = "0x7777777777777777777777777777777777777777";
+  const B = "0x9999999999999999999999999999999999999999";
+  // 2 reciprocal counterparties, 12 txs total
+  const pingPong = [
+    ...Array.from({ length: 3 }, () => tx({ from: SUBJECT, to: A })),
+    ...Array.from({ length: 3 }, () => tx({ from: A, to: SUBJECT })),
+    ...Array.from({ length: 3 }, () => tx({ from: SUBJECT, to: B })),
+    ...Array.from({ length: 3 }, () => tx({ from: B, to: SUBJECT })),
+  ];
+  const hot = await analyzeWallet(makeData({ transactions: pingPong }), 10);
+  assert.equal(hot.signals.reciprocalFlow, true);
+  assert.match(hot.signalReasons.reciprocalFlow!, /2 counterparties with two-way/);
+
+  // One-way only: sends to A, receives from B — no reciprocal pairs
+  const oneWay = [
+    ...Array.from({ length: 6 }, () => tx({ from: SUBJECT, to: A })),
+    ...Array.from({ length: 6 }, () => tx({ from: B, to: SUBJECT })),
+  ];
+  const cold = await analyzeWallet(makeData({ transactions: oneWay }), 10);
+  assert.equal(cold.signals.reciprocalFlow, false);
+});
+
 test("stablecoin-dominant portfolio sets stablecoinHeavy", async () => {
   const m = await analyzeWallet(
     makeData({

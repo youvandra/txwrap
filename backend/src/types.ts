@@ -76,6 +76,9 @@ export interface WalletSignals {
   crossChainUser: boolean;
   nftCollector: boolean;
   contractHeavy: boolean;
+  // Two-way ping-pong with the same counterparties — a wash-trading / fake
+  // volume / sybil-rotation tell.
+  reciprocalFlow: boolean;
 }
 
 // Recent-activity direction, so an agent sees where a wallet is heading — not

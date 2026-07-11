@@ -98,7 +98,7 @@ tour the slideshow with no wallet needed.
 |------|-------|---------|
 | `profile_wallet` | `address`, `roast?` | Full profile: archetype (+confidence), activity breakdown, portfolio, scores, signals, top counterparty, evidence. With `roast: true`, adds a human summary + slideshow URL. |
 | `classify_wallet` | `address` | Cheap check: archetype, confidence, rarity tier, active signals, evidence. |
-| `screen_wallet` | `address` | Risk screen: coarse risk level, a `proceed`/`caution`/`avoid` recommendation with per-flag numeric `reasons`, all 13 signals, a blocklist check (self + counterparties), evidence. |
+| `screen_wallet` | `address` | Risk screen: coarse risk level, a `proceed`/`caution`/`avoid` recommendation with per-flag numeric `reasons`, all 14 signals, a blocklist check (self + counterparties), evidence. |
 | `compare_wallets` | `addresses[2..5]` | Side-by-side profiles, scores, and signals for ranking. |
 | `find_sybils` | `addresses[3..20]` | Coordination screen: clusters wallets by shared counterparties, shared funder, and correlated timing, with a per-pair score. |
 | `screen_wallets` | `addresses[2..20]` | Bulk light screen in one call: per-wallet risk, recommendation, flags, archetype, momentum. Made for vetting an allowlist cheaply; follow up on flagged wallets with `screen_wallet`. |
@@ -166,7 +166,7 @@ can relay verbatim (no AI call involved), and every *fired* signal comes with a
 `signalReasons` entry holding the actual numbers behind it — so a decision can
 be justified, not just made.
 
-Thirteen boolean flags, each derived only from what X Layer actually exposes:
+Fourteen boolean flags, each derived only from what X Layer actually exposes:
 
 | Signal | Means |
 |---|---|
@@ -183,9 +183,10 @@ Thirteen boolean flags, each derived only from what X Layer actually exposes:
 | `crossChainUser` | Has bridged via X Layer ↔ TradeZone |
 | `nftCollector` | Holds 3+ NFTs |
 | `contractHeavy` | More internal (contract) txns than external ones |
+| `reciprocalFlow` | Repeated two-way ping-pong with the same counterparties — wash-trading / fake-volume tell |
 
 `screen_wallet` promotes `likelyBot`, `dustPattern`, `approvalHeavy`,
-`newWallet`, and `dormant` into `riskFlags`, then maps the count onto a coarse
+`newWallet`, `dormant`, and `reciprocalFlow` into `riskFlags`, then maps the count onto a coarse
 `risk` level (`low` / `medium` / `high`).
 
 It also runs a **blocklist check** against a registry of known-malicious

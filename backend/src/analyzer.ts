@@ -419,6 +419,14 @@ export async function analyzeWallet(
   const ageDays = firstTs ? (now - firstTs) / 86400000 : 0;
   const daysSinceLast = lastTs ? (now - lastTs) / 86400000 : Infinity;
 
+  // Counterparties this wallet has BOTH sent to and received from. A couple of
+  // two-way relationships is normal; several across a small history reads as
+  // wash-trading, fake volume, or sybil rotation.
+  let reciprocalCount = 0;
+  for (const addr of recipientCounts.keys()) {
+    if (senderCounts.has(addr)) reciprocalCount++;
+  }
+
   const signals: WalletSignals = {
     nightOwl: nightRatio > 0.3,
     approvalHeavy: totalTxs > 0 && (approveCount / totalTxs > 0.2 || approveCount > 20),
@@ -435,6 +443,7 @@ export async function analyzeWallet(
     crossChainUser: crossChain.total > 0,
     nftCollector: nftCount >= 3,
     contractHeavy: internalTxCount > totalTxs && totalTxs > 0,
+    reciprocalFlow: reciprocalCount >= 2 && totalTxs >= 10,
   };
 
   // The numbers behind every fired signal, so an agent can cite *why* a flag
@@ -468,6 +477,8 @@ export async function analyzeWallet(
     signalReasons.nftCollector = `${nftCount} NFT(s) held`;
   if (signals.contractHeavy)
     signalReasons.contractHeavy = `${internalTxCount}+ internal (contract) txs vs ${totalTxs} analyzed external txs`;
+  if (signals.reciprocalFlow)
+    signalReasons.reciprocalFlow = `${reciprocalCount} counterparties with two-way back-and-forth flows across ${totalTxs} analyzed txs`;
 
   // Heuristic confidence: more analyzed transactions and a more decisive
   // standout score => higher confidence. Capped below 1 — we never claim
