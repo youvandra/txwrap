@@ -29,6 +29,31 @@ function json(data: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
 
+// Server-level guide, surfaced in the initialize response so a connecting agent
+// knows what TxWrap is, which tool to reach for, and what it costs — before it
+// spends anything.
+const SERVER_INSTRUCTIONS = `TxWrap — on-chain wallet intelligence for X Layer (chain 196). Turn any 0x address into a decision-grade behavioral profile you can act on.
+
+WHICH TOOL:
+- Just need to know a wallet? -> profile_wallet (full) or classify_wallet (cheap: archetype + momentum + percentile).
+- About to transact with / trust a counterparty? -> screen_wallet (risk + proceed/caution/avoid + reasons + blocklist).
+- Vetting many addresses (an allowlist)? -> screen_wallets (2-20 in one call, light mode, cheap).
+- Wallet looks clean but you want its circle checked? -> expand_risk (screens its counterparties, guilt-by-association).
+- Airdrop / grant anti-sybil? -> find_sybils (clusters 3-20 wallets by shared counterparties, funder, timing).
+- Worried about token-drainer approvals? -> check_approvals (decodes approve() calldata, flags UNLIMITED allowances).
+- Monitoring over time? -> diff_wallet (first call = baseline, later calls = what changed).
+- Ranking a shortlist? -> compare_wallets.
+
+HOW TO READ RESULTS:
+- Every result has a one-sentence 'summary' you can relay to a user verbatim, and an 'evidence' block (analyzedTx/totalTx + caveat) — weigh confidence by it. Analysis uses a recent-activity window, not full history.
+- Fired signals carry numeric 'signalReasons'. 'confidence' is capped at 0.95 — never treated as certainty.
+- screen_wallet / expand_risk / check_approvals results include a signed 'attestation'. Keep it: another agent (or an OKX.AI dispute evaluator) can verify via POST /attestation/verify that TxWrap produced exactly that result.
+- Read the resource txwrap://methodology for the exact formulas/thresholds behind every number.
+
+COST:
+- initialize, tools/list, and the get_quota / get_population tools are always FREE. Call get_quota to check remaining free calls + pricing before spending.
+- Other tool calls: a daily free quota per IP, then x402 v2 (HTTP 402, settled on-chain in USDT0). Pricing is per call, not per wallet — one screen_wallets call vets up to 20 addresses.`;
+
 const RISK_FLAGS = [
   "likelyBot",
   "dustPattern",
@@ -54,7 +79,10 @@ function summarize(metrics: WalletMetrics): string {
 // callerIp powers the free get_quota tool (per-IP quota lookup); the server is
 // built per-request in index.ts, so the closure is always for the right caller.
 export function buildMcpServer(callerIp = "unknown"): McpServer {
-  const server = new McpServer({ name: "txwrap", version: "0.1.0" });
+  const server = new McpServer(
+    { name: "txwrap", version: "0.1.0" },
+    { instructions: SERVER_INSTRUCTIONS }
+  );
   const READ_ONLY = { readOnlyHint: true } as const;
 
   server.registerTool(

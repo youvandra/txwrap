@@ -179,6 +179,12 @@ via `POST /attestation/verify` or plain `ecrecover`. Due diligence becomes
 *portable proof*, not a private API response. The signing key is an identity
 key only; it never holds funds.
 
+A connecting agent is oriented automatically: the MCP `initialize` response
+carries server-level **`instructions`** — a which-tool-for-what guide, how to read
+results (summary / evidence / attestation), and the free-vs-paid cost model — so
+a client feeds the model a usage guide before its first call. Per-tool
+descriptions cover the specifics.
+
 The full spec of how every number is produced ships as a free MCP resource:
 read **`txwrap://methodology`** (`resources/read`) for the exact thresholds and
 formulas behind every score, signal, archetype, and verdict — citable by any
