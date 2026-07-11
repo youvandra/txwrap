@@ -168,6 +168,11 @@ can relay verbatim (no AI call involved), and every *fired* signal comes with a
 `signalReasons` entry holding the actual numbers behind it — so a decision can
 be justified, not just made.
 
+The full spec of how every number is produced ships as a free MCP resource:
+read **`txwrap://methodology`** (`resources/read`) for the exact thresholds and
+formulas behind every score, signal, archetype, and verdict — citable by any
+agent that needs to defend a decision made on our data.
+
 Fourteen boolean flags, each derived only from what X Layer actually exposes:
 
 | Signal | Means |
@@ -476,6 +481,7 @@ backend/src/
   risk.ts           Shared risk-verdict mapping (single + bulk screens)
   approvals.ts      ERC-20 approval decoding — the drainer check
   snapshots.ts      Wallet snapshots + diffing (diff_wallet)
+  methodology.ts    Citable spec of every formula (txwrap://methodology)
   blocklist.ts      Known-malicious address registry (screen_wallet)
   x402.ts           Payment gate (freemium + HTTP 402)
   xlayer-client.ts  X Layer Data API, HMAC-SHA256 auth

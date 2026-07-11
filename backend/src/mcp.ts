@@ -7,6 +7,7 @@ import { isBlocklisted, findBlocklisted } from "./blocklist.js";
 import { riskLevel, recommendationFor } from "./risk.js";
 import { checkApprovals } from "./approvals.js";
 import { loadSnapshot, saveSnapshot, snapshotOf, diffSnapshots } from "./snapshots.js";
+import { METHODOLOGY, METHODOLOGY_URI } from "./methodology.js";
 import { quotaStatus, x402Info } from "./x402.js";
 import type { WalletMetrics } from "./types.js";
 
@@ -335,6 +336,22 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
           : "The x402 gate is currently off — all tool calls are free.",
       });
     }
+  );
+
+  // The citable spec of how every number is produced. Free (resources/read is
+  // not metered) so an agent can always justify a decision it made on our data.
+  server.registerResource(
+    "methodology",
+    METHODOLOGY_URI,
+    {
+      title: "TxWrap methodology",
+      description:
+        "How every score, signal, archetype, risk verdict, and percentile is computed — thresholds and formulas, deterministic and citable.",
+      mimeType: "text/markdown",
+    },
+    async (uri) => ({
+      contents: [{ uri: uri.href, mimeType: "text/markdown", text: METHODOLOGY }],
+    })
   );
 
   return server;
