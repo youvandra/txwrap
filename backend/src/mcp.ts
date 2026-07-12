@@ -80,7 +80,7 @@ function summarize(metrics: WalletMetrics): string {
 // built per-request in index.ts, so the closure is always for the right caller.
 export function buildMcpServer(callerIp = "unknown"): McpServer {
   const server = new McpServer(
-    { name: "txwrap", version: "0.1.0" },
+    { name: "WalletLens", version: "0.1.0" },
     { instructions: SERVER_INSTRUCTIONS }
   );
   const READ_ONLY = { readOnlyHint: true } as const;
