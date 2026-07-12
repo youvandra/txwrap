@@ -117,7 +117,7 @@ export function summarizeScores(
   return { p50: at(0.5), p90: at(0.9), max: sorted[sorted.length - 1] };
 }
 
-// Aggregate view of every wallet TxWrap has profiled — the population behind
+// Aggregate view of every wallet WalletLens has profiled — the population behind
 // the percentile field. Honest by construction: sample sizes included, basis
 // explicit, distribution withheld below the sample floor.
 export function getPopulation(): {
@@ -132,6 +132,6 @@ export function getPopulation(): {
     uniqueWallets: wallets.size,
     archetypes,
     standoutScores: summarizeScores(scores),
-    basis: "wallets profiled by TxWrap (not the full X Layer population)",
+    basis: "wallets profiled by WalletLens (not the full X Layer population)",
   };
 }

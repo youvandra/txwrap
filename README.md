@@ -1,9 +1,9 @@
-# TxWrap
+# WalletLens
 
 **On-chain wallet intelligence for agents.** An A2MCP Agentic Service Provider
 on [OKX.AI](https://www.okx.ai), running on X Layer.
 
-TxWrap turns any X Layer wallet address into a **decision-grade behavioral
+WalletLens turns any X Layer wallet address into a **decision-grade behavioral
 profile**: an archetype with a confidence score, activity breakdown, token
 portfolio and net worth, behavioral scores, and risk signals — every result
 carrying an `evidence` block so an agent can weigh, trust, and justify what it
@@ -24,7 +24,7 @@ does next.
 ## Why an agent needs this
 
 An autonomous agent working on-chain constantly runs into an address it knows
-nothing about. TxWrap is the primitive that answers:
+nothing about. WalletLens is the primitive that answers:
 
 > *"Who is this wallet, and should I act on it?"*
 
@@ -106,7 +106,7 @@ tour the slideshow with no wallet needed.
 | `diff_wallet` | `address` | Monitoring: first call saves a baseline, every later call reports what **changed** — archetype/momentum flips, signals gained/lost, new txns, net-worth moves. |
 | `expand_risk` | `address` | Guilt-by-association: light-screens the wallet's top counterparties (both directions) and returns an aggregate **neighborhood** verdict. Verified token contracts excluded. |
 | `get_quota` | — | **Free.** Remaining free calls today + current x402 pricing. Never counts against the quota. |
-| `get_population` | — | **Free.** Aggregate of every wallet TxWrap has profiled: archetype + score distributions — the exact population behind the `percentile` field. |
+| `get_population` | — | **Free.** Aggregate of every wallet WalletLens has profiled: archetype + score distributions — the exact population behind the `percentile` field. |
 
 ### Profile shape
 
@@ -120,7 +120,7 @@ tour the slideshow with no wallet needed.
   "rarity": "S-Tier",               // rank from your own standout score
   "percentile": {                   // omitted until the sample is large enough
     "standoutScore": 91, "topPercent": 5, "sampleSize": 420,
-    "basis": "wallets profiled by TxWrap (not the full X Layer population)"
+    "basis": "wallets profiled by WalletLens (not the full X Layer population)"
   },
 
   "totalTx": 847,
@@ -364,7 +364,7 @@ These are deliberate constraints, not omissions:
 - **No fabricated percentiles.** `rarity` is an honest self-referential tier
   (S…D) from the wallet's own standout score. A `percentile` (*"top X%"*) is
   added **only** once we have profiled enough wallets to mean it (a sample
-  floor), is measured against *wallets TxWrap has profiled* — explicitly **not**
+  floor), is measured against *wallets WalletLens has profiled* — explicitly **not**
   the full X Layer population — and is floored at 1% (never *"top 0%"*). Below
   the floor the field is simply absent.
 - **Confidence is capped at 0.95.** A recent-activity window can never justify
@@ -433,7 +433,7 @@ reliability that both depend on.
 - **Real population percentiles** ✅ *shipped* — `stats.ts` keeps a rolling
   sample of standout scores; `service.ts` adds a `percentile` block (top X%,
   sample size, explicit basis) to a profile once the sample clears a floor, and
-  withholds it below. Honest by construction — measured against wallets TxWrap
+  withholds it below. Honest by construction — measured against wallets WalletLens
   has profiled, not all of X Layer.
 
 Recommended order: labels → cache → `find_sybils` → drainer screen → roast card
@@ -450,7 +450,7 @@ Node.js 20+, and OKX API credentials with X Layer Data API access.
 ### Run locally
 
 ```bash
-git clone https://github.com/youvandra/txwrap.git
+git clone https://github.com/youvandra/WalletLens.git
 cd txwrap/backend
 npm install
 

@@ -2,7 +2,7 @@
 //
 // A screening result normally dies inside one agent's context. Attested, it
 // becomes a portable proof: agent A can hand agent B (or an OKX.AI dispute
-// evaluator) a result plus a signature and anyone can verify that TxWrap
+// evaluator) a result plus a signature and anyone can verify that WalletLens
 // produced exactly this result — standard EIP-191 personal_sign over the
 // keccak256 of the canonical (sorted-keys) JSON, recoverable with ecrecover.
 //

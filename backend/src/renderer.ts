@@ -13,7 +13,7 @@ export function buildMarkdown(
 
   const lines: string[] = [];
 
-  lines.push(`📊 **TxWrap Report**`);
+  lines.push(`📊 **WalletLens Report**`);
   lines.push(`Wallet: \`${address.slice(0, 10)}...${address.slice(-6)}\``);
   lines.push(``);
   const percentile = metrics.percentile

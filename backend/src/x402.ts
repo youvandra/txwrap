@@ -102,7 +102,7 @@ function buildPaidMiddleware(): Handler {
           network: NETWORK,
           payTo: config.x402PayTo,
         },
-        description: "TxWrap wallet-intelligence tool call",
+        description: "WalletLens wallet-intelligence tool call",
         mimeType: "application/json",
       },
     },

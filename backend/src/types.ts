@@ -178,7 +178,7 @@ export interface WalletPersonality {
   verdict: string;
 }
 
-export interface TxWrapResponse {
+export interface WalletLensResponse {
   success: boolean;
   data?: {
     metrics: WalletMetrics;
@@ -189,7 +189,7 @@ export interface TxWrapResponse {
   error?: string;
 }
 
-export interface TxWrapRequest {
+export interface WalletLensRequest {
   address: string;
   chainId?: string;
 }

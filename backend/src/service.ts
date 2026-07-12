@@ -44,7 +44,7 @@ async function getMetrics(address: string): Promise<WalletMetrics> {
       standoutScore: standout,
       topPercent: rank.topPercent,
       sampleSize: rank.sampleSize,
-      basis: "wallets profiled by TxWrap (not the full X Layer population)",
+      basis: "wallets profiled by WalletLens (not the full X Layer population)",
     };
   }
 

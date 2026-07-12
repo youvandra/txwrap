@@ -62,7 +62,7 @@ function rawRequest(method: string, path: string): Promise<string> {
         "OK-ACCESS-SIGN": signature,
         "OK-ACCESS-PASSPHRASE": config.xlayerPassphrase,
         "OK-ACCESS-TIMESTAMP": timestamp,
-        "User-Agent": "TxWrap/1.0",
+        "User-Agent": "WalletLens/1.0",
       },
     };
 

@@ -12,7 +12,7 @@ import { initStats, recordWrap, recordAgentCall, getStats } from "./stats.js";
 import { initSnapshots } from "./snapshots.js";
 import { ATTESTATION_SIGNER, SIGNER_IS_EPHEMERAL, verifyAttestation, type Attestation } from "./attest.js";
 import { XLayerRateLimitError } from "./xlayer-client.js";
-import type { TxWrapRequest, TxWrapResponse, WalletMetrics } from "./types.js";
+import type { WalletLensRequest, WalletLensResponse, WalletMetrics } from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SLIDES_DIR = path.join(__dirname, "..", "slides");
@@ -45,7 +45,7 @@ app.get("/wrap/:address", (req, res) => {
   const base = `${req.protocol}://${req.get("host")}`;
   const shortAddr = `${address.slice(0, 10)}...${address.slice(-6)}`;
   const meta = `
-  <meta property="og:title" content="TxWrap — ${shortAddr}, Wrapped.">
+  <meta property="og:title" content="WalletLens — ${shortAddr}, Wrapped.">
   <meta property="og:description" content="On-chain behavioral profile: archetype, scores, portfolio and roast for ${shortAddr} on X Layer.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${base}/wrap/${address}">
@@ -159,10 +159,10 @@ app.post("/api/txwrap", async (req, res) => {
   try {
     // express.json() leaves req.body undefined when the request carries no
     // JSON content-type, so default it rather than throwing a 500 on a 400.
-    const { address } = (req.body ?? {}) as TxWrapRequest;
+    const { address } = (req.body ?? {}) as WalletLensRequest;
 
     if (!isValidAddress(address || "")) {
-      const response: TxWrapResponse = {
+      const response: WalletLensResponse = {
         success: false,
         error: "Invalid address format. Must be a 0x-prefixed 42-char address.",
       };
@@ -197,7 +197,7 @@ app.post("/api/txwrap", async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host") || `localhost:${config.port}`}`;
     const slideshowUrl = `${baseUrl}/wrap/${address}`;
 
-    const response: TxWrapResponse = {
+    const response: WalletLensResponse = {
       success: true,
       data: {
         metrics,
@@ -209,7 +209,7 @@ app.post("/api/txwrap", async (req, res) => {
 
     res.json(response);
   } catch (err) {
-    console.error("TxWrap error:", err);
+    console.error("WalletLens error:", err);
 
     // A wallet with no history is not an error — it profiles as "The Ghost" and
     // gets roasted like everyone else. This one means the upstream is throttling
@@ -218,11 +218,11 @@ app.post("/api/txwrap", async (req, res) => {
       res.status(503).json({
         success: false,
         error: "X Layer is rate-limiting us right now. Please try again in a moment.",
-      } satisfies TxWrapResponse);
+      } satisfies WalletLensResponse);
       return;
     }
 
-    const response: TxWrapResponse = {
+    const response: WalletLensResponse = {
       success: false,
       error: "Could not profile this wallet right now. Please try again.",
     };
@@ -234,5 +234,5 @@ initStats(path.join(__dirname, "..", "data"));
 initSnapshots(path.join(__dirname, "..", "data"));
 
 app.listen(config.port, () => {
-  console.log(`TxWrap server running on port ${config.port}`);
+  console.log(`WalletLens server running on port ${config.port}`);
 });

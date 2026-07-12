@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TxWrap — Your Wallet, Wrapped.</title>
+  <title>WalletLens — Your Wallet, Wrapped.</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,11 +142,11 @@
             <h1 class="display rv" style="font-size:clamp(3.5rem,16vw,10rem);margin:10px 0">TX<span style="color:#FF2D8B">WRAP</span></h1>
             <p class="lede rv" style="margin-bottom:34px">
               Your agent keeps hitting addresses it knows nothing about.
-              TxWrap answers <em>“who is this wallet, and should I act on it?”</em>
+              WalletLens answers <em>“who is this wallet, and should I act on it?”</em>
               — as structured data it can compose, not a webpage it has to scrape.
             </p>
             <a href="https://www.okx.ai/agents/4938" target="_blank" rel="noopener" class="cta rv">
-              Try TxWrap on OKX.AI <span>→</span>
+              Try WalletLens on OKX.AI <span>→</span>
             </a>
             <button @click="scrollToWrap()" class="rv mono text-xs uppercase tracking-widest font-bold underline underline-offset-4 hover:text-[#FF2D8B]" style="margin-top:22px">
               or wrap your own wallet ↓
@@ -325,7 +325,7 @@
           <div class="wrapx flex flex-col items-center text-center">
             <h2 class="h2 rv" style="font-size:clamp(2.4rem,8vw,5.5rem)">GIVE YOUR AGENT<br>A SECOND OPINION.</h2>
             <a href="https://www.okx.ai/agents/4938" target="_blank" rel="noopener" class="cta rv" style="margin-top:20px">
-              Try TxWrap on OKX.AI <span>→</span>
+              Try WalletLens on OKX.AI <span>→</span>
             </a>
             <div class="rv mono text-[11px] uppercase tracking-widest font-bold opacity-60" style="margin-top:26px">
               MCP endpoint · txwrap.my.id/mcp
@@ -362,7 +362,7 @@
                 <div class="badge pop text-xs">Your <span x-text="year"></span> Wallet Wrapped</div>
                 <h2 class="display pop" style="font-size:clamp(3rem,13vw,5.5rem)">YOUR YEAR<br><span class="hollow" :style="`-webkit-text-stroke:2px ${themes[slide].ink}`" style="color:transparent">ONCHAIN</span></h2>
                 <div class="card pop mono px-4 py-2 text-sm break-all" x-text="shortAddr(data.address)"></div>
-                <p class="pop mono text-xs uppercase tracking-widest font-bold opacity-70">X Layer · powered by TxWrap</p>
+                <p class="pop mono text-xs uppercase tracking-widest font-bold opacity-70">X Layer · powered by WalletLens</p>
               </div>
             </div>
 
@@ -476,7 +476,7 @@
               <div class="flex flex-col items-center text-center gap-6">
                 <p class="pop display" style="font-size:4rem">⚡</p>
                 <div class="card pop p-6 text-2xl font-black italic leading-snug" x-text="'&ldquo;'+data.personality.verdict+'&rdquo;'"></div>
-                <p class="pop mono text-xs uppercase tracking-[3px] font-bold opacity-70">— TxWrap Verdict</p>
+                <p class="pop mono text-xs uppercase tracking-[3px] font-bold opacity-70">— WalletLens Verdict</p>
               </div>
             </div>
 
@@ -602,7 +602,7 @@
           { name: 'get_quota', title: 'Budget first — free', hex: '#00A676', tilt: 'rotate-1',
             desc: 'Remaining free calls today plus live x402 pricing. Never counts against the quota, so agents can meter before they spend.' },
           { name: 'get_population', title: 'The population — free', hex: '#8B3DFF', tilt: '-rotate-1',
-            desc: 'Archetype and score distributions across every wallet TxWrap has profiled — the exact population your percentile is measured against.' },
+            desc: 'Archetype and score distributions across every wallet WalletLens has profiled — the exact population your percentile is measured against.' },
         ],
         steps: [
           { t: 'Fetch, in parallel', d: 'Seven X Layer Data API endpoints at once: balances, native transactions, ERC-20 holdings, NFT count, token transfer flows, internal contract calls, and cross-chain hops. Any supplementary endpoint may fail without taking the profile down.' },
@@ -612,7 +612,7 @@
           { t: 'Roast, optionally', d: 'The AI layer only writes the human summary. It never touches a number.' },
         ],
         honesty: [
-          { t: 'No fabricated percentiles', d: 'A "top X%" only appears once enough wallets have been profiled to mean it, and it is measured against wallets TxWrap has profiled — never claimed against all of X Layer.' },
+          { t: 'No fabricated percentiles', d: 'A "top X%" only appears once enough wallets have been profiled to mean it, and it is measured against wallets WalletLens has profiled — never claimed against all of X Layer.' },
           { t: 'Confidence is capped at 0.95', d: 'A recent-activity window cannot justify certainty, so we never claim it.' },
           { t: 'No guessed protocol names', d: 'Unknown addresses render as clean short hex instead of a plausible-looking lie.' },
           { t: 'The fee matches reality', d: 'A paid endpoint must actually settle. We charge 0.05 because x402 settlement genuinely works.' },
@@ -773,7 +773,7 @@
               uniqueProtocols: 19, topFrenemy: '0x8f3a9c2b1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f80',
               topFrenemyLabel: '0x8f3a…7f80', rarity: 'S-Tier',
               trajectory: { tx7d: 31, tx30d: 96, prev7d: 14, momentum: 'heating' },
-              percentile: { standoutScore: 91, topPercent: 4, sampleSize: 512, basis: 'wallets profiled by TxWrap' },
+              percentile: { standoutScore: 91, topPercent: 4, sampleSize: 512, basis: 'wallets profiled by WalletLens' },
               topCounterparties: [
                 { address: '0x779ded0c9e1022225f8e0630b35a9b54be713736', label: 'USDT0', txCount: 41 },
                 { address: '0xe538905cf8410324e03a5a23c1c177a474d59b2b', label: 'WOKB', txCount: 27 },
@@ -836,7 +836,7 @@
 
         shareX() {
           const url = window.location.href;
-          const text = '📊 Check out my wallet wrap! 🎰\n\n' + url + '\n\n#OKXAI #TxWrap';
+          const text = '📊 Check out my wallet wrap! 🎰\n\n' + url + '\n\n#OKXAI #WalletLens';
           window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(text), '_blank', 'width=600,height=400');
         },
       };

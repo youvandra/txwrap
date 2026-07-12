@@ -1,4 +1,4 @@
-// TxWrap MCP server — exposes the wallet-intelligence pipeline as agent tools.
+// WalletLens MCP server — exposes the wallet-intelligence pipeline as agent tools.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { profileWallet, getSybilFeatures, lightScreenMetrics } from "./service.js";
@@ -30,9 +30,9 @@ function json(data: unknown) {
 }
 
 // Server-level guide, surfaced in the initialize response so a connecting agent
-// knows what TxWrap is, which tool to reach for, and what it costs — before it
+// knows what WalletLens is, which tool to reach for, and what it costs — before it
 // spends anything.
-const SERVER_INSTRUCTIONS = `TxWrap — on-chain wallet intelligence for X Layer (chain 196). Turn any 0x address into a decision-grade behavioral profile you can act on.
+const SERVER_INSTRUCTIONS = `WalletLens — on-chain wallet intelligence for X Layer (chain 196). Turn any 0x address into a decision-grade behavioral profile you can act on.
 
 WHICH TOOL:
 - Just need to know a wallet? -> profile_wallet (full) or classify_wallet (cheap: archetype + momentum + percentile).
@@ -47,7 +47,7 @@ WHICH TOOL:
 HOW TO READ RESULTS:
 - Every result has a one-sentence 'summary' you can relay to a user verbatim, and an 'evidence' block (analyzedTx/totalTx + caveat) — weigh confidence by it. Analysis uses a recent-activity window, not full history.
 - Fired signals carry numeric 'signalReasons'. 'confidence' is capped at 0.95 — never treated as certainty.
-- screen_wallet / expand_risk / check_approvals results include a signed 'attestation'. Keep it: another agent (or an OKX.AI dispute evaluator) can verify via POST /attestation/verify that TxWrap produced exactly that result.
+- screen_wallet / expand_risk / check_approvals results include a signed 'attestation'. Keep it: another agent (or an OKX.AI dispute evaluator) can verify via POST /attestation/verify that WalletLens produced exactly that result.
 - Read the resource txwrap://methodology for the exact formulas/thresholds behind every number.
 
 COST:
@@ -435,7 +435,7 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
       title: "Population stats — free",
       annotations: READ_ONLY,
       description:
-        "Free aggregate view of every wallet TxWrap has profiled: archetype distribution, standout-score distribution (p50/p90/max), sample sizes. This is the exact population the `percentile` field is measured against — call it to interpret a percentile, or for a feel of what X Layer wallet behavior looks like. Never counts against the quota.",
+        "Free aggregate view of every wallet WalletLens has profiled: archetype distribution, standout-score distribution (p50/p90/max), sample sizes. This is the exact population the `percentile` field is measured against — call it to interpret a percentile, or for a feel of what X Layer wallet behavior looks like. Never counts against the quota.",
       inputSchema: {},
     },
     async () => {
@@ -445,7 +445,7 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
         note:
           p.standoutScores === null
             ? "Score distribution is withheld until at least 30 wallets have been profiled — we do not summarize noise."
-            : "Distribution reflects wallets profiled by TxWrap, growing with every profile.",
+            : "Distribution reflects wallets profiled by WalletLens, growing with every profile.",
       });
     }
   );
@@ -456,7 +456,7 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
     "methodology",
     METHODOLOGY_URI,
     {
-      title: "TxWrap methodology",
+      title: "WalletLens methodology",
       description:
         "How every score, signal, archetype, risk verdict, and percentile is computed — thresholds and formulas, deterministic and citable.",
       mimeType: "text/markdown",

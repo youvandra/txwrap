@@ -5,7 +5,7 @@
 // threshold changes there, change it here in the same commit.
 export const METHODOLOGY_URI = "txwrap://methodology";
 
-export const METHODOLOGY = `# TxWrap Methodology
+export const METHODOLOGY = `# WalletLens Methodology
 
 How every score, signal, and verdict is computed. The metrics engine is
 deterministic — pure math over the fetched window, no AI in any number. The
@@ -93,7 +93,7 @@ linked; union-find groups linked wallets into clusters.
 **rarity** is a self-referential tier from the wallet's strongest score
 (S >=90, A >=75, B >=55, C >=35, else D). **percentile** ("top X%") appears
 only once at least 30 wallets have been profiled, is measured against wallets
-TxWrap has profiled — never claimed against all of X Layer — and is floored
+WalletLens has profiled — never claimed against all of X Layer — and is floored
 at top 1%.
 
 ## Honesty rules
