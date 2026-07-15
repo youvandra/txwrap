@@ -88,7 +88,7 @@ app.get("/og/:address.png", async (req, res) => {
 });
 
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "txwrap" });
+  res.json({ status: "ok", service: "walletlens" });
 });
 
 // Real usage counters — see stats.ts. Nothing here is seeded or inflated.

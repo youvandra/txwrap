@@ -120,7 +120,7 @@
   </style>
 </head>
 <body>
-  <div x-data="txwrap()" class="min-h-screen" :class="loading && 'flex items-center justify-center'">
+  <div x-data="walletlens()" class="min-h-screen" :class="loading && 'flex items-center justify-center'">
 
     <!-- ===== LOADING ===== -->
     <template x-if="loading">
@@ -501,7 +501,7 @@
           </div>
 
           <div class="marquee" :style="`background:${themes[slide].ink};color:${themes[slide].bg}`">
-            <span>TXWRAP · YOUR YEAR ONCHAIN · TXWRAP · YOUR YEAR ONCHAIN · TXWRAP · YOUR YEAR ONCHAIN · </span><span>TXWRAP · YOUR YEAR ONCHAIN · TXWRAP · YOUR YEAR ONCHAIN · TXWRAP · YOUR YEAR ONCHAIN · </span>
+            <span>WALLETLENS · YOUR YEAR ONCHAIN · WALLETLENS · YOUR YEAR ONCHAIN · WALLETLENS · YOUR YEAR ONCHAIN · </span><span>WALLETLENS · YOUR YEAR ONCHAIN · WALLETLENS · YOUR YEAR ONCHAIN · WALLETLENS · YOUR YEAR ONCHAIN · </span>
           </div>
         </div>
 
@@ -522,7 +522,7 @@
   </div>
 
   <script>
-    function txwrap() {
+    function walletlens() {
       return {
         address: '',
         loading: false,
@@ -828,7 +828,7 @@
               },
             });
             const link = document.createElement('a');
-            link.download = 'txwrap-' + Date.now() + '.png';
+            link.download = 'walletlens-' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
           } catch (e) { alert('Failed to generate image: ' + e.message); }
