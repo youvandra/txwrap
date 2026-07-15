@@ -134,6 +134,14 @@ app.post("/mcp", x402Gate, async (req, res) => {
   if ((req.body as { method?: string } | undefined)?.method === "tools/call") {
     recordAgentCall();
   }
+
+  // The MCP Streamable HTTP transport requires Accept: text/event-stream.
+  // Some OKX CLI agents don't send it, so inject it when missing.
+  const accept = (req.headers["accept"] || "") as string;
+  if (!accept.includes("text/event-stream")) {
+    req.headers["accept"] = "application/json, text/event-stream";
+  }
+
   const server = buildMcpServer(req.ip);
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   res.on("close", () => {
