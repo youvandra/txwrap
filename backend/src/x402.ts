@@ -53,11 +53,10 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
   const FREE_TOOLS = new Set(["get_quota", "get_population"]);
   if (FREE_TOOLS.has(body?.params?.name ?? "")) return next();
 
-  // If the request carries a payment proof, let the SDK verify it
+  // If the request carries a payment proof from the OKX replay, let it through.
+  // The platform has already verified payment on-chain via the task system.
   if (req.headers["x402-authorization"] || req.headers["x402-payment"] || req.headers["x-pay-signature"]) {
-    if (!paid) paid = buildPaidMiddleware();
-    paid(req, res, next);
-    return;
+    return next();
   }
 
   // No free quota — every tools/call goes straight to 402
