@@ -130,15 +130,7 @@ app.post("/attestation/verify", (req, res) => {
 // MCP server (stateless HTTP) — the agent-facing surface. Each request gets a
 // fresh server + transport so there is no cross-request session state.
 // Tool calls are metered by the x402 gate (freemium + HTTP 402).
-app.post("/mcp", (req, _res, next) => {
-  // MCP Streamable HTTP requires Accept: text/event-stream.
-  // Some OKX CLI agents omit it, causing 406. Force it here.
-  const accept = req.headers["accept"] || "";
-  if (!accept.includes("text/event-stream")) {
-    req.headers["accept"] = "application/json, text/event-stream, */*";
-  }
-  next();
-}, x402Gate, async (req, res) => {
+app.post("/mcp", x402Gate, async (req, res) => {
   if ((req.body as { method?: string } | undefined)?.method === "tools/call") {
     recordAgentCall();
   }
