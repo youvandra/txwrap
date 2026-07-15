@@ -128,8 +128,31 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
     return next();
   }
 
-  if (!paid) paid = buildPaidMiddleware();
-  void paid(req, res, next);
+  // If the request carries a payment proof, let the SDK verify it
+  if (req.headers["x402-authorization"] || req.headers["x402-payment"] || req.headers["x-pay-signature"]) {
+    if (!paid) paid = buildPaidMiddleware();
+    paid(req, res, next);
+    return;
+  }
+
+  // No payment proof — return a proper x402 v2 challenge
+  const amount = Math.round(Number(config.x402PriceUsd) * 1000000).toString();
+  res.status(402).json({
+    x402Version: 2,
+    resource: {
+      url: `${req.protocol}://${req.get("host")}/mcp`,
+      mimeType: "application/json",
+    },
+    accepts: [{
+      scheme: "exact",
+      network: NETWORK,
+      amount,
+      asset: USDT0_XLAYER,
+      payTo: config.x402PayTo,
+      maxTimeoutSeconds: 300,
+      extra: { name: "USD₮0", version: "1" },
+    }],
+  });
 }
 
 export function x402Info(): Record<string, unknown> {
