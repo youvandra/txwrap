@@ -411,21 +411,15 @@ export function buildMcpServer(callerIp = "unknown"): McpServer {
   server.registerTool(
     "get_quota",
     {
-      title: "Check free-call quota",
+      title: "Check pricing",
       annotations: READ_ONLY,
       description:
-        "Free billing introspection: how many free tool calls this client has left today, and current x402 pricing. Never counts against the quota. Call it to budget before a batch of paid calls.",
+        "Free billing introspection: returns current x402 pricing, payment address, and whether the gate is enabled. This tool is always free.",
       inputSchema: {},
     },
     async () => {
-      const q = quotaStatus(callerIp);
-      return json({
-        ...q,
-        pricing: x402Info().pricing,
-        note: q.enabled
-          ? `Past ${q.freeDaily} free calls/day, each tools/call costs the listed price via x402 (HTTP 402, settled on-chain in USDT0).`
-          : "The x402 gate is currently off — all tool calls are free.",
-      });
+      const info = x402Info();
+      return json(info);
     }
   );
 
