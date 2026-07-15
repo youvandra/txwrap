@@ -62,7 +62,7 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
 
   // No free quota — every tools/call goes straight to 402
   const amount = Math.round(Number(config.x402PriceUsd) * 1000000).toString();
-  res.status(402).json({
+  const challenge = {
     x402Version: 2,
     resource: {
       url: `${req.protocol}://${req.get("host")}/mcp`,
@@ -77,7 +77,10 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
       maxTimeoutSeconds: 300,
       extra: { name: "USD₮0", version: "1" },
     }],
-  });
+  };
+  // v2: marketplace validates PAYMENT-REQUIRED header (base64), body is fallback
+  res.setHeader("PAYMENT-REQUIRED", Buffer.from(JSON.stringify(challenge)).toString("base64"));
+  res.status(402).json(challenge);
 }
 
 export function quotaStatus(_ip: string): {
