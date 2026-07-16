@@ -6,7 +6,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { config } from "./config.js";
 import { profileWallet, isValidAddress } from "./service.js";
 import { buildMcpServer } from "./mcp.js";
-import { x402Gate, x402Info } from "./x402.js";
+import { x402Gate, x402Info, send402Challenge } from "./x402.js";
 import { renderOgPng } from "./og.js";
 import { initStats, recordWrap, recordAgentCall, getStats } from "./stats.js";
 import { initSnapshots } from "./snapshots.js";
@@ -149,8 +149,10 @@ app.post("/mcp", x402Gate, async (req, res) => {
   }
 });
 
-app.get("/mcp", (_req, res) => {
-  res.json({ service: "walletlens", type: "A2MCP", note: "Use POST /mcp with JSON-RPC body" });
+// Marketplace validators probe the endpoint with a bare GET and expect the
+// x402 challenge. Real MCP clients always POST JSON-RPC.
+app.get("/mcp", (req, res) => {
+  send402Challenge(req, res);
 });
 
 app.options("/mcp", (_req, res) => {

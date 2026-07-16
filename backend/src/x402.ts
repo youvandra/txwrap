@@ -47,7 +47,16 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
   if (!isEnabled()) return next();
 
   const body = req.body as { method?: string; params?: { name?: string } } | undefined;
-  if (body?.method !== "tools/call") return next();
+
+  // Bare request (no JSON-RPC method) — a marketplace validator or plain curl
+  // probing the endpoint. Answer with the x402 challenge so the probe sees a
+  // compliant paid endpoint instead of an MCP protocol error.
+  if (typeof body?.method !== "string") {
+    send402Challenge(req, res);
+    return;
+  }
+
+  if (body.method !== "tools/call") return next();
 
   // Introspection stays free
   const FREE_TOOLS = new Set(["get_quota", "get_population"]);
@@ -70,6 +79,13 @@ export function x402Gate(req: Request, res: Response, next: NextFunction): void 
   }
 
   // No free quota — every tools/call goes straight to 402
+  send402Challenge(req, res);
+}
+
+// Build and send the x402 v2 challenge. Also used for bare (non-JSON-RPC)
+// requests to /mcp so marketplace validators probing the endpoint without an
+// MCP body still see a compliant HTTP 402.
+export function send402Challenge(req: Request, res: Response): void {
   const amount = Math.round(Number(config.x402PriceUsd) * 1000000).toString();
   const challenge = {
     x402Version: 2,

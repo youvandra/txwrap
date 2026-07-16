@@ -51,8 +51,8 @@ HOW TO READ RESULTS:
 - Read the resource txwrap://methodology for the exact formulas/thresholds behind every number.
 
 COST:
-- initialize, tools/list, and the get_quota / get_population tools are always FREE. Call get_quota to check remaining free calls + pricing before spending.
-- Other tool calls: a daily free quota per IP, then x402 v2 (HTTP 402, settled on-chain in USDT0). Pricing is per call, not per wallet — one screen_wallets call vets up to 20 addresses.`;
+- initialize, tools/list, and the get_quota / get_population tools are always FREE. Call get_quota to check current x402 pricing before spending.
+- Every other tool call requires x402 v2 payment (HTTP 402 challenge, settled on-chain in USDT0). There is no free quota. Pricing is per call, not per wallet — one screen_wallets call vets up to 20 addresses.`;
 
 const RISK_FLAGS = [
   "likelyBot",
